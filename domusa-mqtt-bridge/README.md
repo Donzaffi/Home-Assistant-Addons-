@@ -55,7 +55,7 @@ Home Assistant will remember these custom names even after updates.
 
 ## Support
 
-If you encounter any issues or have feature requests, please [open an issue on GitHub](https://github.com/Donzaffi/domusa-mqtt-bridge/issues). Contributions are welcome!
+If you encounter any issues or have feature requests, please [open an issue on GitHub](https://github.com/Donzaffi/Home-Assistant-Addons-/tree/main/domusa-mqtt-bridge/issues). Contributions are welcome!
 
 ## License
 
