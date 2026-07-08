@@ -18,14 +18,27 @@ As a QA professional, I am not a developer by trade. A significant portion of th
 ## Installation
 To use this add-on, add this repository to your Home Assistant Add-on Store:
 
-1. Go to **Settings** -> **Add-ons**.
+## How to add this Repository
+The easiest way to add this repository to your Home Assistant instance is by using the button below:
+
+[![Add to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FDonzaffi%2FHome-Assistant-Addons-)
+
+*If the button above does not work:*
+1. Navigate to **Settings** -> **Add-ons**.
 2. Click the **three-dot menu** in the top right corner and select **Repositories**.
-3. Add the repository URL: `https://github.com/Donzaffi/Home-Assistant-Addons` (the main repository).
-4. Click **Add** and then **Close**.
+3. Add this URL: `https://github.com/Donzaffi/Home-Assistant-Addons-`
+4. Click **Add**.
 
 ## Requirements
 * A valid [NASA FIRMS API key](https://firms.modaps.eosdis.nasa.gov/).
 * Your geographical coordinates configured in the add-on settings.
+
+
+## Disclaimer
+* **Use at your own risk:** These Add-ons are primarily for private use and may lack the extensive testing found in official integrations.
+* **Community-driven:** These are independent projects and are not officially affiliated with or endorsed by the device manufacturers.
+* **Support:** As these are personal projects, I cannot provide extensive support. If you encounter issues, feel free to open a GitHub issue, and I will address it when time permits.
+
 
 ---
 *Created by Donzaffi*
