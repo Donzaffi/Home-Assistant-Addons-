@@ -1,0 +1,26 @@
+{
+  "name": "World Fires Map",
+  "version": "1.0.0",
+  "slug": "world_fires_map",
+  "description": "Local NASA FIRMS fire map service",
+  "arch": ["aarch64", "amd64", "armv7", "i386"],
+  "startup": "once",
+  "boot": "auto",
+  "ingress": false,
+  "ports": {
+    "8080/tcp": 8080
+  },
+  "init": false,
+  "options": {
+    "nasa_api_key": "",
+    "latitude": "",
+    "longitude": "",
+    "radius_km": ""
+  },
+  "schema": {
+    "nasa_api_key": "str",
+    "latitude": "str",
+    "longitude": "str",
+    "radius_km": "str"
+  }
+}
