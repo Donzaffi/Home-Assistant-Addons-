@@ -36,7 +36,11 @@ class Discovery:
             {"name": self.i18n.t("sensor_eev"), "uid": "eev_position", "key": "eev_c18", "unit": "steps", "class": None, "icon": "mdi:valve"},
             {"name": self.i18n.t("sensor_pwm"), "uid": "pwm", "key": "pwm_c1_c51", "unit": "%", "class": None, "icon": "mdi:percent"},
             {"name": self.i18n.t("sensor_power"), "uid": "thermal_power", "key": "s_q_c10", "unit": "kW", "class": "power", "icon": "mdi:flash-circle"},
-            {"name": self.i18n.t("sensor_state"), "uid": "operation_state", "key": "estado_func_c52", "unit": None, "class": None, "icon": "mdi:state-machine"},
+            {
+                "name": self.i18n.t("sensor_state"), "uid": "operation_state", "key": "estado_func_c52", "unit": None, "class": None, "icon": "mdi:state-machine",
+                "template": "{% set mapper = {0: 'Standby', 1: 'Warmwasser', 2: 'Heizen', 3: 'Warmwasser+Heizen', 3: 'Kühlen'} %}{{ mapper.get(value_json.estado_func_c52 | int, 'Unbekannt') }}"
+            },
+            #{"name": self.i18n.t("sensor_state"), "uid": "operation_state", "key": "estado_func_c52", "unit": None, "class": None, "icon": "mdi:state-machine"},
             {"name": self.i18n.t("sensor_mode"), "uid": "hp_mode", "key": "m_hp_p01", "unit": None, "class": None, "icon": "mdi:cog"},
             {"name": self.i18n.t("sensor_freq"), "uid": "grid_frequency", "key": "e_freq", "unit": "Hz", "class": "frequency", "icon": "mdi:sine-wave"},
             {"name": self.i18n.t("sensor_zone1"), "uid": "zone1_heat_setpoint", "key": "st_zona1_c_p158", "unit": "°C", "class": "temperature", "icon": "mdi:radiator"}
