@@ -11,6 +11,10 @@ class Auth:
         self.refresh_token = None
         self.expires_at = 0
 
+    def invalidate_token(self):
+        self.token = None
+        self.expires_at = 0
+
     async def get_token(self):
         # Wenn ein Token existiert und noch min. 5 Minuten gültig ist
         if self.token and time.time() < (self.expires_at - 300):
