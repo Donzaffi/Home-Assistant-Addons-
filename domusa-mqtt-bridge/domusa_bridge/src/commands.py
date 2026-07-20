@@ -16,7 +16,7 @@ class CommandListener:
                 key = msg.topic.value.split("/")[-1]
                 value = msg.payload.decode()
                 
-                print(f"Befehl erhalten: {key} mit Wert {value}. Steuerung aktuell deaktiviert.")
+                print(f"Befehl erhalten: {key} mit Wert {value}. Control deactivated .")
                 
                 # Control Heatpump. Read Only in the moment
                 # await self.api.set_value(device_id, key, value)
