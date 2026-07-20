@@ -60,16 +60,3 @@ class Discovery:
             }
             await self.mqtt.client.publish(f"homeassistant/sensor/domusa_{cid}_{s['uid']}/config", json.dumps(payload), retain=True)
 
-        climate = {
-            "name": self.i18n.t("climate_acs"),
-            "unique_id": f"domusa_{cid}_acs_thermostat",
-            "device": dev_info,
-            "temperature_command_topic": f"domusa/{cid}/set/setACS",
-            "current_temperature_topic": f"domusa/{cid}/status",
-            "current_temperature_template": "{{ value_json.s_acs_c09 }}",
-            "temperature_state_topic": f"domusa/{cid}/status",
-            "temperature_state_template": "{{ value_json.st_acs_p04 }}",
-            "min_temp": 30, "max_temp": 70, "temp_step": 1,
-            "icon": "mdi:water-boiler-marker"
-        }
-        await self.mqtt.client.publish(f"homeassistant/climate/domusa_{cid}_acs_thermostat/config", json.dumps(climate), retain=True)
