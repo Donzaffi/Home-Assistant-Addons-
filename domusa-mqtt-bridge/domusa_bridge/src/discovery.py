@@ -43,8 +43,8 @@ class Discovery:
             #{"name": self.i18n.t("sensor_state"), "uid": "operation_state", "key": "estado_func_c52", "unit": None, "class": None, "icon": "mdi:state-machine"},
             {"name": self.i18n.t("sensor_mode"), "uid": "hp_mode", "key": "m_hp_p01", "unit": None, "class": None, "icon": "mdi:cog"},
             {"name": self.i18n.t("sensor_freq"), "uid": "grid_frequency", "key": "e_freq", "unit": "Hz", "class": "frequency", "icon": "mdi:sine-wave"},
-            {"name": self.i18n.t("sensor_zone1"), "uid": "zone1_heat_setpoint", "key": "st_zona1_c_p158", "unit": "°C", "class": "temperature", "icon": "mdi:radiator"}
-            {"name": self.i18n.t("sensor_acs_temp"), "uid": "s_acs", "key": "s_acs_c09", "unit": "°C", "class": "temperature", "icon": "mdi:water-thermometer"},
+            {"name": self.i18n.t("sensor_zone1"), "uid": "zone1_heat_setpoint", "key": "st_zona1_c_p158", "unit": "°C", "class": "temperature", "icon": "mdi:radiator"},
+            {"name": self.i18n.t("sensor_acs_temp"), "uid": "s_acs", "key": "s_acs_c09", "unit": "°C", "class": "temperature", "icon": "mdi:water-thermometer"}
         ]
 
         for s in sensors:
