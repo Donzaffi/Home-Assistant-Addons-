@@ -19,6 +19,7 @@ class DomusaAPI:
                 async with session.get(url, timeout=10) as r:
                     # Token-Refresh Logik bei 401
                     if r.status == 401:
+                        self.auth.invalidate_token() # Token explizit ungültig machen
                         self.token = await self.auth.get_token()
                         headers["Authorization"] = f"Bearer {self.token}"
                         async with session.get(url, headers=headers, timeout=10) as r2:
@@ -34,8 +35,9 @@ class DomusaAPI:
         headers = await self._get_headers()
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url) as r:
-                # Auch hier 401 prüfen, falls das Token abgelaufen ist
+                # Auch hier 401 prüfen
                 if r.status == 401:
+                    self.auth.invalidate_token()
                     self.token = await self.auth.get_token()
                     headers["Authorization"] = f"Bearer {self.token}"
                     async with session.get(url, headers=headers) as r2:
