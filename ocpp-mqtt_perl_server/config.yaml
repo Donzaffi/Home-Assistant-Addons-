@@ -20,12 +20,11 @@ map:
   - share:rw
 
 options:
-  mqtt_host: core-mosquitto
-  mqtt_port: 1883
-  mqtt_user: ""
+  mqtt_enabled: true
+  mqtt_broker: core-mosquitto
+  mqtt_username: ""
   mqtt_password: ""
-  ocpp_port: 9001
-  debug: false
+  mqtt_topic_prefix: ocpp
 
 schema:
   mqtt_host: str
