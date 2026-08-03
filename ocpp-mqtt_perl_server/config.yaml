@@ -1,0 +1,36 @@
+name: OCPP MQTT Perl Server
+slug: ocpp_mqtt_perl
+version: "0.1.0"
+description: OCPP 1.6 MQTT Server
+url: https://gitlab.com/lucabon/ocpp-mqtt-perl-server
+startup: services
+boot: auto
+init: false
+
+arch:
+  - amd64
+  - aarch64
+  - armv7
+
+host_network: true
+
+map:
+  - addon_config:rw
+  - ssl
+  - share:rw
+
+options:
+  mqtt_host: core-mosquitto
+  mqtt_port: 1883
+  mqtt_user: ""
+  mqtt_password: ""
+  ocpp_port: 9001
+  debug: false
+
+schema:
+  mqtt_host: str
+  mqtt_port: port
+  mqtt_user: str?
+  mqtt_password: password?
+  ocpp_port: port
+  debug: bool
