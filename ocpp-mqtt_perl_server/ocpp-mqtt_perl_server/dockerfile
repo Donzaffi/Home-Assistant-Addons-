@@ -1,1 +1,5 @@
-
+FROM perl:5-alpine
+RUN apk add --no-cache build-base make perl-net-ssleay perl-json
+WORKDIR /app
+COPY . /app
+CMD [ "perl", "server.pl" ]
