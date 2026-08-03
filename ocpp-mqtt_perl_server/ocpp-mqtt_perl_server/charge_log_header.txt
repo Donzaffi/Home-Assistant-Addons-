@@ -1,0 +1,6 @@
+#
+# SPDX-FileCopyrightText: 2023-2024 Luca Bonissi <wallbox@bonissi.it>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+TransID	StartTime  StartTimeTxt	EndTime    EndTimeTxt	TkWh	Ttime	TavgkW	kWh	time	avgkW	avgO/avgA	PV	F1	F2	F3

@@ -1,0 +1,390 @@
+#
+# SPDX-FileCopyrightText: 2023-2026 Luca Bonissi <wallbox@bonissi.it>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+** 2026-04-20 Version 1.9923 (By Skacco)
+ - Force StopCharging on MQTT when RemoteStopTransaction Rejected
+ - Skip TxProfile in NewOffered when STOP/SUSPENDSTART
+ - Detect full battery (power=0 + currSet>0 in CHARGE state)
+ - Skip NewOffered from main loop when STOP/SUSPENDSTART
+ - Reduce log noise for Increasing when SUSPENDSTART
+ - Reset MQTT_started_published on SaveConf when not charging
+ 
+** 2026-03-19 Version 1.9922
+ - Added EV integration. Now, if you provide at least EV SOC, charging could
+   be stopped when reaching SOC limit.
+ - Added Transaction.Begin/Transaction.End on Trigger and when autostart is
+   enabled to allow parsing for graphs.
+ - Resetting session on StopTransaction only if the received TAG is the same
+   received on StartTransaction and it is configured as CARD (reset session
+   only if stopped by RFID).
+ - Separate logging of Solar power from temperature/humidity.
+
+** 2026-03-03 Version 1.9921
+ - Added solar generation MQTT/FILE data acquisition and tracing on
+   DataTransfer.
+ - Fixed incorrect power data logging when using 3-phases wallbox reporting
+   only total power.
+
+** 2026-02-26 Version 1.9920
+ - Publishing charging=0 when SuspendedEV notified.
+ - Unlock connector instead of RemoveStopTransaction if no transaction active.
+ - Check SUSPENDSTART substatus to set TxDefaultProfile or TxProfile.
+ - Added FORCE_STOP to disallow automatic restart when charging stopped by 
+   HA/MQTT.
+ - Added possibility to specify minimum zero limit: parameter
+   WALLBOX_SET_LIMIT_ZERO_ON_STOP could be postfixed by "A" or "W" to
+   specify the minimum (if "1", the minimum is zero: if "0" or not 
+   specified, the minimum is the wallbox minimum).
+
+** 2026-02-14 Version 1.9919
+ - Fixed a bug in Net::MQTT::Simple library (topic not re-subscribed on
+   reconnection). WARNING: server should be restarted to activate the fix.
+ - Added number of wallbox's phases detect on trace.
+ - Added wallbox temperature to HA auto-discovery.
+ - Fixed bug in MQTT configuration publishing (topic deleted if not already
+   present).
+ - Added status and charging topic publishing on server restart.
+
+** 2026-02-13 Version 1.9918
+ - Fixed incorrect STATUS set to SUSPEND on StartTransaction (the SUBSTATUS 
+   must be set to SUSPEND).
+ - Fixed missing MQTT_STARTED set on MQTT start command.
+ - Fixed incorrect TxDefaultProfile overwriting when changing profile with
+   different FIXED parameter.
+
+** 2026-02-12 Version 1.9917
+ - Remove message[s] from queue is they are the same type as pushed.
+ - Added HA-POWER profile to set a fixed power instead of current.
+
+** 2026-02-10 Version 1.9916
+ - Added WALLBOX_SET_LIMIT_ZERO_ON_STOP parameter to allow set 0 as default
+   limit when status is STOP, to avoid unintended (auto)transaction start.
+ - Limit maximum number of entries in the queue (30 by default) to prevent
+   loops bug.
+
+** 2026-02-09 Version 1.9915
+ - Added all phases to simulated MeterValues on StopTransaction.
+ - Always set default limit when using USE_STOP_AS_SUSPEND and unit is Watt.
+ - When FIXED is set, try to compensate current/power when offered derive more
+   than WALLBOX_SET_LIMIT_MAINSTEP.
+ - Restart automatically is the wallbox stops charging (e.g. when the set power
+   limit is too low).
+ - Added a little delay (50 seconds) before triggering BootNotification at the
+   boot time.
+
+** 2026-02-03 Version 1.9914
+ - Fixed incorrect increasing to MinPowerCharging when the actual power
+   overtake MAXPOWER_SUSPEND.
+ - Fixed incorrect new subsession creation on server restart.
+ - Calculate increase/decrease also with power to avoid double conversion
+   from current.
+
+** 2026-01-31 Version 1.9913
+ - Increased error log rotation and check if file exists (no STDERR).
+ - Added truncation to FINESTEP for current calculation.
+ - Use wallbox voltage as is in current calculation when unit is W.
+
+** 2026-01-29 Version 1.9912
+ - Fixed incorrect GRID*TIME value converted in seconds in publishing.
+ - Added error log rotation (3 files)
+
+** 2026-01-28 Version 1.9911
+ - Removing offset calculation when unit espressed in Watt (was buggy).
+ - Added WALLBOX_SET_LIMIT_MAINSTEP (default 1 A).
+ - Removed double START/STOP button in HA autodiscovery (no more necessary
+   with tag/profile combo-box).
+ - Fixed missing reset of default profile options on ini re-read.
+ - Fixed incorrect unit (set to kWh) for MaxEnergySession
+
+** 2026-01-26 Version 1.9910
+ - Forgot to add profile HA-DYNAMIC-ARERA to ocpp-default.ini.
+ - Added Main steps handling for 3-phases.
+ - Added current offset when wallbox SetChargingProfile is in Watt.
+ - Fixed missing charging=0 publishing after pre-charging timeout (120s).
+ - Keep only 1 start button and add combo box for profile selection in HA
+   discovery.
+
+** 2026-01-23 Version 1.9909
+ - Fixed incorrect MeterValues offered current parsing (the offered current
+   could be for each line) and fixed missing unit handling.
+ - Added WALLBOX_USE_METER_VOLTAGE option to fix sometimes buggy voltage
+   of some wallboxes.
+ - Fixed incorrect TxDefaultLimit when USE_STOP_AS_SUSPEND=1 and changing
+   MINPOWER limit.
+
+** 2026-01-22 Version 1.9908
+ - Removed default wallbox get/set parameters to avoid unwanted wrong 
+   smartcharging.
+ - Added "HA-*" profiles and related auto-discovery buttons.
+ - Added preliminary 3-phases handling.
+ - Added wallbox option WALLBOX_SET_LIMIT_UNIT (A, W or kW)
+ - When charging is started by HA/MQTT, the tag for profile activation is
+   the one passed in the start command:
+   + FIXED   => for fixed power/current charging
+   + DYNAMIC => for fixed dynamic charging based on home load
+   + ECO     => minimum 6 A charging, and increase only if solar energy is available
+   + SOLAR   => use only solar energy
+ - Added measured EV current average to charge log.
+ - Allow spaces between "Smart" and "Charging" to detect SmartCharging profile.
+ - Added pre-charging (-1) event in order to anticipate the EV data collection.
+ - Added ALLOW_ONLY_DEFINED_CARDS general option to allow start charging only
+   by RFID cards defined in ocpp.ini.
+ - Added current/offered/power session average.
+ - Added elapsed information.
+ - Added AUTOSTART and CHARGING_MINPOWER settings to HA auto-discovery.
+ - Added suggested_display_precision for voltage and elapsed.
+ - Added active profile and RFID card to session values.
+ - Added session values publish on server restart and periodically.
+ - Remove auto-discovery topic only if no more available after configuration
+   change.
+ - Removed sub-session information from session values.
+ - Fixed incorrect used variable when subscribing wallbox topics.
+ - Fixed incorrect published mqtt_limit value.
+ - Fixed incorrect increasing when status is "AVAIL".
+
+** 2026-01-12 Version 1.9907
+ - Added possibility to change power and energy unit (default: W for power,
+   kWh for energy).
+ - Fixed incorrect timeslot assignment for holidays.
+ - MQTT_FIXED param valid only if session started by MQTT/HA without or with
+   empty "idTag" parameter (in the latter case, session activation will follow
+   profiles limits).
+ - Reject start/stop command from MQTT/HA if session not started by MQTT/HA
+   or "force" specified.
+ - Using instant power when decreasing if this one is less than average.
+ - Set fixed power instead of increasing when charging started but 0 A
+   running.
+ - When increasing, limit maximum power to MAXPOWER.
+ - Added possibility to get meter values from file (you should prefix "file:"
+   to METER_MQTT_PREFIX).
+ - Added ini file parameters write.
+
+** 2025-12-30 Version 1.9906
+ - Fixed incorrect listen socket reopen in case of "Connection reset by peer".
+ - Fixed HA Slide for set_limit.
+
+** 2025-12-27 Version 1.9905
+ - Separate current "limit" publish topic from status topic.
+ - Some wallboxes do not react to Trigger MeterValues and do not send
+   automatically Transaction.End MeterValues. Route internally values 
+   of Wh charged in the current session when StopTransaction message is
+   received.
+ - Allow 1 more time to overtake GRID_LIMIT before suspending charging.
+ - Added handling of Sample.Clock context (lifetime energy reported) on
+   MeterValues message.
+ - Fixed incorrect resetting of $START_SESSION variable on the first 
+   sub-session.
+
+** 2025-12-26 Version 1.9904
+ - Added 0.5 seconds delay before getting retained topics (in order to delete
+   older no-more-used topics).
+ - Added check on StopTransaction to accomodate wallboxes that does not return
+   "Remote" on reason when using RemoteStopTransaction command.
+
+** 2025-12-25 Version 1.9903
+ - Added trigger command: you can trig OCPP message such as BootNotification,
+   StatusNotification, MeterValues, etc.
+ - Added reconf command: sending this message will reload configuration and
+   rebuild MQTT/HA tree.
+ - Added MQTT_METER_NAME parameter (only used in HA auto-discovery).
+ - Fixed missing SetChargingProfile message when SmartCharging is not
+   detected.
+ - Store wallbox information (vendor, model, metertype, sn, sw), to be published 
+   in HA auto-discovery.
+ - At boot time, always ask for BootNotification, even if STATUS is not empty
+   (bug introduced when store STATUS in trans.ini)
+ - Group entities/sensors by device (actually, wallbox and meter) in HA
+   auto-discovery.
+ - Added Active profile for charging, grid, and baseload in status information.
+ - Added actual current limit in status information.
+
+** 2025-12-23 Version 1.9902
+ - Fixed incorrect minimum limit in HA discovery (it was 6, now -1):
+   + -1          => MQTT limit disabled (restored profiles handling)
+   + from 0 to 5 => Charging suspended by HA (profiles disabled)
+   + >=6         => Use MQTT limit specified (profiled disabled)
+ - Added "nohup" to starting script ocpp.sh.
+
+** 2025-12-21 Version 1.9901
+ - Added preliminary support for MQTT and Home Assistant Discovery.
+ - Added parameters for QUEUE delay and wait.
+ - Split WebSocket function into dedicated file (ocpp_ws.pm).
+ - Added CHARGING_MINPOWER parameter: this will be the minimum power/current
+   to be used during session. The power will be reduced under this value only
+   if GRID_LIMIT will be reached.
+ - Avoid too random uuid: regenerate seed only 1 time per day.
+ - Added multiple message reply handling, in case of annidated
+   messages/replies.
+ - Added UnlockConnector and Reset OCPP commands.
+ - Added connector status ($CONNSTATUS variable).
+
+** 2025-12-03 Version 1.17
+ - Added FALLBACK_BASELOAD general parameter to allow calculation of 
+   Amperes/Watt for Wallbox Pulsar Plus.
+ - Converted WAIT_CHANGE/WAIT_ON_START from samples to seconds.
+   For values less than or equal to 20, it will be threated as samples and
+   converted to seconds using 36 seconds per sample.
+   If you need to use less than 20 seconds, add "s" at the end of the value.
+ - Added configurable average "weight" based on seconds instead of samples.
+ - Added configurable shell script command to execute when changing starts.
+ - Removing "Available" from "STOP" status if connectorId=0 (seems a bug on
+   ABB Terra AC).
+ - Fixed recovering of sub-transaction in caso on server restart.
+ - Recover status from server restart or broken connection.
+ - Added the possibility to send an email when grid limit exceeded and not
+   in CHARGE status.
+ - Added MAX_ENERGY_SESSION parameter to stop charging when the limit is
+   reached.
+ - Added NO_AVERAGE parameter to increase/decrease current based on current
+   power or on average power. The parameter is bit-mapped:
+    0x01 = use instant (no average) power to increase
+    0x02 = use instant (no average) power to decrease
+    0x03 = use instant (no average) power both for increase and decrease
+   The parameter could be useful to get energy only from solar-only power, 
+   e.g. in summer to avoid too much power fetched from grid (NO_AVERAGE=2),
+   or in winter to always retrieve all available excess of solar power 
+   (NO_AVERAGE=1).
+   When current reach the minimum (usually 6 A), average will be always
+   used to suspend the session (0 A).
+ - Fixed quick start back-counter handling, that could lead to very slow
+   start.
+ - Reducing select timeout and adding WAITDATA_TIMEOUT handling (Cmd and
+   HandleQueue called every 10 seconds or if data is incoming).
+ - Added the possibility to STOP the transaction for SUSPEND instead
+   of limiting current profile to 0 A (seems some wallboxes do not
+   like setting 0 A).
+
+** 2025-03-22 Version 1.16
+ - Changed chargingProfileKind from "Recurring" to "Absolute" (some Wallboxes
+   reject "Recurring" scheduling).
+ - Fixed incorrect Wall/Volt/Ampere for Pulsar Plus MeterValues event.
+ - Added BASELOAD=-1 to try to detect home load from MeterValues.
+
+** 2025-03-22 Version 1.15
+ - Added configureable profile ID, connector ID, stack level.
+ - Added GLOBAL_ENERGY parameter if the reported Wh are absolute and not
+   relative to the transaction.
+ - Added GETCONF to get all configuration keys at boot.
+ - Added SAMPLED_DATA to set MeterValues data to be returned.
+ - Fixed incorrect current decimals when BASELOAD is used.
+ - Retry SetChargingProfile is after 5 rounds it is still the old one.
+
+** 2025-03-19 Version 1.14
+ - Added AUTOSTART parameter for Wallboxes that does not automatically
+   start the charging and do not have RFID reader.
+
+** 2025-03-19 Version 1.13
+ - Added BASELOAD parameter with its own profile activation in order
+   to specify the typical maximum house load in case you don't have
+   a meter or you are not able to get data from it.
+ - Reduce the precision of total energy in CHG tracing only if current 
+   subtransaction energy is > 0.
+ - Make GRID_LIMIT_SAFE_REDUCE relative, to avoid duplication of the
+   parameter.
+ - Allow time specification across day, like 23:00-07:00.
+
+** 2025-02-27 Version 1.12
+ - Give the option to set GRID_LIMIT_PAUSE as percentage and add new parameter
+   GRID_LIMIT_REDUCETIME. In this way you can set a lower threshold time
+   after which reducing the power under the safe limit, and you can gain
+   "natural" pause under safe limit (e.g. power reduce after some heavy loads
+   or switch from normal 3.3 kW to "Arera" 6.05 kW power limit).
+ - Added sub-session kWh in the log.
+
+** 2025-01-20 Version 1.11
+ - Increase verbosity level to 14 for DataTransfer and MeterValues messages.
+ - Fixed incorrect "slow" power increase when changing grid profile (e.g. 
+   Italian Arera 6 kW sperimentation).
+ - Fixed incorrect disabling of quick power increase in case the 
+   MeterValues message comes with not-yet-updated offered current.
+
+** 2025-01-06 Version 1.10
+ - Rounding the time to the nearest minute in the charge log.
+ - Adding sub transaction number to the charge log.
+ - Set the current TAG (CARD ID) during Start/StopTransaction event only if 
+   the TAG is empty (you can start the charging with a CARD, but switch to
+   another CARD before the charging will starts or ends).
+ - Fix missing $canincrease set if the charging is not (yet) started.
+ - Adjusting verbosity to avoid too much logging:
+   + 5 => Log charging sessions and connection info
+   + 6 => Log Wallbox power and ampere if related to a context (BeginTransaction,
+          EndTransaction, etc)
+   + 7 => Log Wallbox power and ampere if a charging session is active and 
+          always log meter values. Log also profile change.
+
+** 2024-08-30 Version 1.09
+ - Added option to sum meter power value to WallBox power value (e.g. when
+   meter measures only home load, not the WallBox one).
+ - Do not set NO_BLOCK on Windows (not supported).
+ - Increase verbosity for checking date for profile/grid.
+ - Fixed incorrect starting power calculation when FIXED used.
+
+** 2024-07-19 Version 1.08
+ - Added possibility to stop current transaction if the EV suspended the 
+   charging and a specified amount of time was elapsed.
+ - Fixed bug that does not allow charge start if the previous one was 
+   stopped at the minimum power (6A).
+
+** 2024-06-30 Version 1.07
+ - Fixed incorrect reading of transaction variables at startup.
+ - Added charge.log header if the file does not exists.
+
+** 2024-06-29 Version 1.06
+ - Fixing starting transaction on new ABB Terra AC firmware 1.8.x (the 
+   WallBox sends "StartTransaction" message only after setting default 
+   limit >=6).
+
+** 2024-06-26 Version 1.05
+ - Fixing bug on negative number accuracy conversion.
+
+** 2024-06-06 Version 1.04
+ - Added per-hour charging logging, since the electricity cost could
+   be hour-based, especially the solar energy fed into grid.
+ - Fixed incorrect runtime parameter saving (if the parameter was not
+   defined, the old value would be kept in the trans.ini file) and allow
+   arbitrary array length to be stored.
+ - Added parameter GRID_LIMIT_RESTART_PAUSE to avoid restarting the PAUSE
+   counter if the limit overtake the GRID_LIMIT_SAFE. The value specified
+   in this parameter will be subtracted to the counter every time the
+   limit is overtaken.
+ - Moved grid limits setting _before_ smart charging profile settings to
+   avoid incorrect low limit set.
+ - Added tolerance to increase power to reach grid limit (the tolerance is
+   taken from difference between GRID_LIMIT_SAFE-GRID_LIMIT_SAFE_REDUCE).
+
+** 2024-05-05 Version 1.03
+ - Replaced complete JSON library (to be installed as system library) with 
+   JSON::Tiny (copied locally).
+ - Added photovoltaic solar energy used for charging.
+ - Added TIMESLOT configuration and logged energy fetched from grid in 
+   various timeslots (peak, mid-peak, off-peak).
+ - Added 3-phases MeterValues handling.
+ - Added per-day data logging (meter, charging, transactions).
+ - Try again if the first BootNotification trigger fails.
+ - Fixed incorrect variable to set a connection as active.
+ - Fixed infinite loop reading from a disconnected socket.
+ - Fixed incorrect current reduction when using "FIXED" profile.
+ - Fixed stop time (taken from message) when MeterValues arrives after 
+   PowerLoss.
+
+** 2024-03-09 Version 1.02
+ - Added named CARD.
+ - Added possibility to maintain average power/current by modulating
+   the profile limit.
+ - Added average current to transaction log.
+ - Added GRID_LIMIT_SAFE_REDUCE parameter to allow a safe reduction
+   of the charging power when fetched power from grid near to that
+   parameter.
+ - Fixed missing suspend bug when last set limit was not accepted.
+ - Adding delay for triggering BootNotification after connection.
+
+** 2024-01-23 Version 1.01
+ - Manage WallBoxes without SmartCharging profile.
+
+** 2024-01-22 Version 1.00
+ Initial Release:
+ - Managing Smart Charging.
+ - Managing charging profiles with IdTag.
+ - Managing Grid Meter (only from ABB TerraAC compatible "DataTransfer").

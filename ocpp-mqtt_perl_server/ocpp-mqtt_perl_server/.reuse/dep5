@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: OCPP 1.6J Server
+Upstream-Contact: Luca Bonissi <wallbox@bonissi.it>
+Source: https://bonissi.it/ocpp/
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...
