@@ -1,6 +1,6 @@
 version: "3.8"
+
 services:
-id: ocpp-server
   ocpp-server:
     build: .
     container_name: ocpp-mqtt-server
@@ -8,5 +8,7 @@ id: ocpp-server
     ports:
       - "9000:9000"
     environment:
-      - MQTT_HOST=192.168.1.X
+      - MQTT_HOST=192.168.X.X
       - MQTT_PORT=1883
+      - MQTT_USER=dein_mqtt_benutzername
+      - MQTT_PASSWORD=dein_mqtt_passwort
