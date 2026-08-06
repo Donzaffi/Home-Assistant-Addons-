@@ -51,23 +51,33 @@ class Auth:
                 print(f"Fehler: Login schlug mit Status {r.status} fehl")
                 return None
 
-    async def perform_refresh(self):
-        headers = {"Content-Type": "application/json"}
-        url = f"{self.BASE}/v1/auth/refresh" 
-        payload = {"refreshToken": self.refresh_token}
-        
-        print(f"DEBUG: Versuche Token Refresh")
-        
-        async with aiohttp.ClientSession(headers=headers) as s:
-            async with s.post(url, json=payload) as r:
-                if r.status == 200:
-                    data = await r.json()
-                    self.token = data.get("token")
-                    # Falls der Server einen neuen Refresh-Token sendet
-                    self.refresh_token = data.get("refreshToken", self.refresh_token)
-                    self.expires_at = time.time() + 3600
-                    return self.token
-                
-                print(f"Refresh fehlgeschlagen, erzwinge neuen Login")
-                self.refresh_token = None
-                return await self.login()
+async def perform_refresh(self):
+    headers = {
+        "Authorization": f"Bearer {self.refresh_token}",
+        "Content-Type": "application/json"
+    }
+
+    url = f"{self.BASE}/v1/auth/refresh"
+
+    print("DEBUG: Refresh Access Token")
+
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(url) as r:
+
+            if r.status == 200:
+                data = await r.json()
+
+                self.token = data.get("token")
+                self.refresh_token = data.get(
+                    "refreshToken",
+                    self.refresh_token
+                )
+
+                return self.token
+
+            print(f"Refresh fehlgeschlagen ({r.status})")
+
+            self.refresh_token = None
+            self.token = None
+
+            return await self.login()
