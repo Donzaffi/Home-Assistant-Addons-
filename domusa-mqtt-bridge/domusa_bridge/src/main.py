@@ -15,63 +15,93 @@ from router import Router
 from storage import Storage
 from i18n import I18n
 
+
 def log(msg):
     print(f"DEBUG: {msg}")
     sys.stdout.flush()
 
+
 async def poll_loop(api, state, device, cfg):
     while True:
-        log("Starte Datenabfrage...")
-        estado = await api.get_estado(device["id"])
-        config = await api.get_config(device["id"])
-        
-        full_data = {**(estado or {}), **(config or {})}
-        
-        if full_data:
-            log(f"Sende {len(full_data)} Sensoren an MQTT")
-            await state.publish(full_data)
-        else:
-            log("Warnung: Keine Daten von der API erhalten!")
-            
+        try:
+            log("Starte Datenabfrage...")
+
+            estado = await api.get_estado(device["id"])
+            config = await api.get_config(device["id"])
+
+            # /estado hat Priorität.
+            # /configuracion ergänzt nur fehlende Werte.
+            full_data = dict(estado or {})
+
+            if config:
+                for key, value in config.items():
+                    if key not in full_data:
+                        full_data[key] = value
+
+            if full_data:
+                log(f"Sende {len(full_data)} Sensoren an MQTT")
+                await state.publish(full_data)
+            else:
+                log("Warnung: Keine Daten von der API erhalten!")
+
+        except Exception as ex:
+            log(f"Polling Fehler: {ex}")
+
         await asyncio.sleep(cfg.get("poll_interval", 60))
+
 
 async def main():
     log("Initialisiere...")
-    
+
     # Konfiguration laden
     with open("/data/options.json", "r") as f:
         config = json.load(f)
-    
-    
+
     # Authentifizierung und API
     auth = Auth(config["username"], config["password"])
-    api = DomusaAPI(auth) 
-    
+    api = DomusaAPI(auth)
+
     # Storage und Device
     storage = Storage()
+
     device = await storage.get_device()
+
     if not device:
         device = await api.get_caldera()
+
+        if not device:
+            raise RuntimeError("Keine Domusa-Anlage gefunden.")
+
         await storage.save_device(device)
 
     # MQTT Verbindung
     mqtt = MQTT(
-        host=config.get("mqtt_host", "core-mosquitto"), 
-        port=1883, 
-        user=config.get("mqtt_user"), 
+        host=config.get("mqtt_host", "core-mosquitto"),
+        port=1883,
+        user=config.get("mqtt_user"),
         password=config.get("mqtt_password")
     )
+
     await mqtt.connect()
+
+    # Discovery veröffentlichen
+    discovery = Discovery(
+        mqtt,
+        device,
+        config.get("language", "de")
+    )
+    await discovery.publish()
 
     # State und Router starten
     state = StateManager(mqtt, device)
     router = Router(api, mqtt, device)
-    
+
     # Poll-Loop und Router gleichzeitig laufen lassen
     await asyncio.gather(
         poll_loop(api, state, device, config),
         router.listen()
     )
+
 
 if __name__ == "__main__":
     asyncio.run(main())
