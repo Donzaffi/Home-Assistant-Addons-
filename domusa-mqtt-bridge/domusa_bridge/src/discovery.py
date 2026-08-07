@@ -483,11 +483,11 @@ class Discovery:
         for sensor in SENSORS:
 
             payload = {
-                "name": {sensor['name']},
+                "name": sensor["name"],
                 "unique_id": f"domusa_{cid}_{sensor['uid']}",
                 "device": dev_info,
                 "state_topic": f"domusa/{cid}/status",
-                #"availability_topic": f"domusa/{cid}/availability",
+                "availability_topic": f"domusa/{cid}/availability",
                 "value_template": sensor.get(
                     "value_template",
                     f"{{{{ value_json.{sensor['key']} }}}}"
