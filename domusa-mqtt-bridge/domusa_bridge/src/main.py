@@ -13,7 +13,6 @@ from discovery import Discovery
 from state import StateManager
 from router import Router
 from storage import Storage
-from i18n import I18n
 
 
 def log(msg):
@@ -87,8 +86,7 @@ async def main():
     # Discovery veröffentlichen
     discovery = Discovery(
         mqtt,
-        device,
-        config.get("language", "de")
+        device
     )
     await discovery.publish()
 
