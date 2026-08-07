@@ -21,7 +21,8 @@ class StateManager:
         if not isinstance(data, dict):
             return
 
-        topic = f"domusa/{self.device['id']}/status"
+        status_topic = f"domusa/{self.device['id']}/status"
+        availability_topic = f"domusa/{self.device['id']}/availability"
 
         payload = json.dumps(
             data,
@@ -29,12 +30,19 @@ class StateManager:
             separators=(",", ":")
         )
 
+        # Immer online melden
+        await self.mqtt.client.publish(
+            availability_topic,
+            "online",
+            retain=True
+        )
+
         # Nur senden wenn sich wirklich etwas geändert hat
         if payload == self._last_payload:
             return
 
         await self.mqtt.client.publish(
-            topic,
+            status_topic,
             payload,
             retain=True
         )
@@ -42,5 +50,5 @@ class StateManager:
         self._last_payload = payload
 
         print(
-            f"State: {len(data)} Werte auf {topic} veröffentlicht."
+            f"State: {len(data)} Werte auf {status_topic} veröffentlicht."
         )
