@@ -266,21 +266,20 @@ class Discovery:
             "model": "HTEC Pro 12"
         }
 
-
         for sensor in SENSORS:
 
             payload = {
                 "name": f"Domusa {sensor['name']}",
                 "unique_id": f"domusa_{cid}_{sensor['uid']}",
-                "device": dev_info,a
+                "device": dev_info,
                 "state_topic": f"domusa/{cid}/status",
                 "availability_topic": f"domusa/{cid}/availability",
                 "value_template": sensor.get(
-                "value_template",
-                f"{{{{ value_json.{sensor['key']} }}}}"
+                    "value_template",
+                    f"{{{{ value_json.{sensor['key']} }}}}"
                 ),
-               "icon": sensor.get("icon")
-                }
+                "icon": sensor.get("icon")
+            }
 
             if "unit" in sensor:
                 payload["unit_of_measurement"] = sensor["unit"]
@@ -288,12 +287,12 @@ class Discovery:
             if "device_class" in sensor:
                 payload["device_class"] = sensor["device_class"]
 
-            #
-            # state_class nur für numerische Sensoren
-            #
-            if sensor.get("unit") and sensor.get("device_class") not in (
-                "enum",
-                "timestamp"
+            if sensor.get("device_class") in (
+                "temperature",
+                "current",
+                "voltage",
+                "power",
+                "frequency",
             ):
                 payload["state_class"] = "measurement"
 
