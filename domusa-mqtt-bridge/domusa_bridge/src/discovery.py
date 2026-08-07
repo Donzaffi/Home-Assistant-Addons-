@@ -190,6 +190,61 @@ SENSORS = [
         "icon": "mdi:thermometer"
     },
 
+    {
+        "uid": "ambient_temperature",
+        "name": "Raumfühler T2",
+        "key": "s_amb_t2_c26",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:home-thermometer",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "evaporating_temperature",
+        "name": "Verdampfer berechnet",
+        "key": "s_evap_calc_c27",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:thermometer-water",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "condensing_temperature",
+        "name": "Verflüssiger berechnet",
+        "key": "s_cond_calc_c28",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:thermometer-water",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "buffer_temperature",
+        "name": "Puffer",
+        "key": "s_buffer_c57",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:water-boiler",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "otc_temperature",
+        "name": "OTC Temperatur",
+        "key": "s_otc_c58",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:thermometer-chevron-down",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "boiler_temperature",
+        "name": "Kessel",
+        "key": "s_cald_c59",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:water-boiler",
+        "entity_category": "diagnostic"
+    },
+
     #
     # Elektrik
     #
@@ -224,6 +279,21 @@ SENSORS = [
         "device_class": "current",
         "unit": "A",
         "icon": "mdi:current-ac"
+    },
+    {
+        "uid": "compressor_frequency_target",
+        "name": "Kompressor Sollfrequenz",
+        "key": "st_freq_c20",
+        "device_class": "frequency",
+        "unit": "Hz",
+        "icon": "mdi:sine-wave"
+    },
+    {
+        "uid": "pwm_raw",
+        "name": "PWM Rohwert",
+        "key": "s_pwm_c1",
+        "icon": "mdi:percent",
+        "entity_category": "diagnostic"
     },
     {
         "uid": "thermal_power",
@@ -388,6 +458,99 @@ SENSORS = [
         "unit": "Hz",
         "icon": "mdi:sine-wave"
     },
+    {
+        "uid": "frequency_stage",
+        "name": "Frequenzstufe",
+        "key": "m_freq",
+        "icon": "mdi:speedometer"
+    },
+    {
+        "uid": "heat_demand",
+        "name": "Wärmeanforderung",
+        "key": "demanda_hp",
+        "icon": "mdi:radiator"
+    },
+    {
+        "uid": "dhw_active",
+        "name": "Warmwasser aktiv",
+        "key": "m_estadoacs",
+        "icon": "mdi:water-boiler"
+    },
+    {
+        "uid": "boost",
+        "name": "Boost",
+        "key": "func_boost",
+        "icon": "mdi:rocket-launch"
+    },
+    {
+        "uid": "manual_defrost",
+        "name": "Manuelles Abtauen",
+        "key": "manual_defrost_p28",
+        "icon": "mdi:snowflake-melt"
+    },
+    #
+    # Zonen
+    #
+
+    {
+        "uid": "room_target",
+        "name": "Raum Soll",
+        "key": "st_amb_p05",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:home-thermometer"
+    },
+    {
+        "uid": "buffer_target",
+        "name": "Puffer Soll",
+        "key": "st_buffer_c_p123",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:water-boiler"
+    },
+    {
+        "uid": "zone1_target",
+        "name": "Zone 1 Soll",
+        "key": "st_zona1_c_p158",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:home-floor-1"
+    },
+    {
+        "uid": "zone2_target",
+        "name": "Zone 2 Soll",
+        "key": "st_zona2_c_p159",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:home-floor-2"
+    },
+    {
+        "uid": "zone3_target",
+        "name": "Zone 3 Soll",
+        "key": "st_zona3_c_p160",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:home-floor-3"
+    },
+    {
+        "uid": "zone1_request",
+        "name": "Zone 1 Anforderung",
+        "key": "demanda_zona1",
+        "icon": "mdi:home-floor-1"
+    },
+    {
+        "uid": "zone2_request",
+        "name": "Zone 2 Anforderung",
+        "key": "demanda_zona2",
+        "icon": "mdi:home-floor-2"
+    },
+    {
+        "uid": "zone3_request",
+        "name": "Zone 3 Anforderung",
+        "key": "demanda_zona3",
+        "icon": "mdi:home-floor-3"
+    },
+    
     {
         "uid": "alarm",
         "name": "Alarm",
