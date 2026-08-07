@@ -483,7 +483,7 @@ class Discovery:
         for sensor in SENSORS:
 
             payload = {
-                "name": f"Domusa {sensor['name']}",
+                "name": {sensor['name']}",
                 "unique_id": f"domusa_{cid}_{sensor['uid']}",
                 "device": dev_info,
                 "state_topic": f"domusa/{cid}/status",
