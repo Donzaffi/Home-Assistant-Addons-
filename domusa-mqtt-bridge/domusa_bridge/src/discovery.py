@@ -78,6 +78,22 @@ SENSORS = [
         "icon": "mdi:water-thermometer"
     },
     {
+        "uid": "buffer_target_temperature",
+        "name": "Puffer Soll",
+        "key": "st_buffer_c_p123",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:thermometer-water"
+    },
+    {
+        "uid": "ambient_target_temperature",
+        "name": "Raum Soll",
+        "key": "st_amb_p05",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:home-thermometer"
+    },
+    {
         "uid": "heating_target_temperature",
         "name": "Heizung Soll",
         "key": "st_activa_c_f",
@@ -110,6 +126,68 @@ SENSORS = [
         "unit": "°C",
         "icon": "mdi:thermometer",
         "entity_category": "diagnostic"
+    },
+    {
+        "uid": "ambient_t2_temperature",
+        "name": "Raumfühler T2",
+        "key": "s_amb_t2_c26",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:home-thermometer",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "evaporator_calculated_temperature",
+        "name": "Verdampfer berechnet",
+        "key": "s_evap_calc_c27",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:calculator",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "condenser_calculated_temperature",
+        "name": "Verflüssiger berechnet",
+        "key": "s_cond_calc_c28",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:calculator",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "buffer_temperature",
+        "name": "Puffer",
+        "key": "s_buffer_c57",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:thermometer-water",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "boiler_temperature",
+        "name": "Kessel",
+        "key": "s_cald_c59",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:boiler",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "otc_temperature",
+        "name": "OTC Temperatur",
+        "key": "s_otc_c58",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:thermometer-chevron-up",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "outside_zone_temperature",
+        "name": "Außenfühler Zone",
+        "key": "s_zonaext_c75",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:thermometer"
     },
 
     #
@@ -147,6 +225,14 @@ SENSORS = [
         "unit": "A",
         "icon": "mdi:current-ac"
     },
+    {
+        "uid": "thermal_power",
+        "name": "Wärmeleistung",
+        "key": "s_q_c10",
+        "device_class": "power",
+        "unit": "kW",
+        "icon": "mdi:heat-wave"
+    },
 
     #
     # Kältekreis
@@ -176,6 +262,15 @@ SENSORS = [
         "icon": "mdi:sine-wave"
     },
     {
+        "uid": "compressor_frequency_target",
+        "name": "Kompressor Sollfrequenz",
+        "key": "st_freq_c20",
+        "device_class": "frequency",
+        "unit": "Hz",
+        "icon": "mdi:sine-wave",
+        "entity_category": "diagnostic"
+    },
+    {
         "uid": "eev_position",
         "name": "EEV",
         "key": "eev_c18",
@@ -189,6 +284,13 @@ SENSORS = [
         "key": "pwm_c1_c51",
         "unit": "%",
         "icon": "mdi:percent",
+        "entity_category": "diagnostic"
+    },
+    {
+        "uid": "compressor_pwm_raw",
+        "name": "PWM Rohwert",
+        "key": "s_pwm_c1",
+        "icon": "mdi:pulse",
         "entity_category": "diagnostic"
     },
 
@@ -229,6 +331,54 @@ SENSORS = [
         "value_template":
             "{% set map={0:'Standby',1:'Warmwasser',2:'Heizen',3:'Warmwasser + Heizen',4:'Kühlen'} %}"
             "{{ map.get(value_json.estado_func_c52|int,'Unbekannt') }}"
+    },
+    {
+        "uid": "frequency_level",
+        "name": "Frequenzstufe",
+        "key": "m_freq",
+        "icon": "mdi:speedometer"
+    },
+    {
+        "uid": "heat_demand",
+        "name": "Wärmeanforderung",
+        "key": "demanda_hp",
+        "icon": "mdi:fire"
+    },
+    {
+        "uid": "zone1_demand",
+        "name": "Zone 1 Anforderung",
+        "key": "demanda_zona1",
+        "icon": "mdi:home-thermometer"
+    },
+    {
+        "uid": "zone2_demand",
+        "name": "Zone 2 Anforderung",
+        "key": "demanda_zona2",
+        "icon": "mdi:home-thermometer"
+    },
+    {
+        "uid": "zone3_demand",
+        "name": "Zone 3 Anforderung",
+        "key": "demanda_zona3",
+        "icon": "mdi:home-thermometer"
+    },
+    {
+        "uid": "hotwater_active",
+        "name": "Warmwasser aktiv",
+        "key": "m_estadoacs",
+        "icon": "mdi:water-boiler"
+    },
+    {
+        "uid": "boost_mode",
+        "name": "Boost",
+        "key": "func_boost",
+        "icon": "mdi:rocket-launch"
+    },
+    {
+        "uid": "manual_defrost",
+        "name": "Manuelles Abtauen",
+        "key": "manual_defrost_p28",
+        "icon": "mdi:snowflake-melt"
     },
     {
         "uid": "grid_frequency",
@@ -273,7 +423,7 @@ class Discovery:
                 "unique_id": f"domusa_{cid}_{sensor['uid']}",
                 "device": dev_info,
                 "state_topic": f"domusa/{cid}/status",
-                "availability_topic": f"domusa/{cid}/availability",
+                #"availability_topic": f"domusa/{cid}/availability",
                 "value_template": sensor.get(
                     "value_template",
                     f"{{{{ value_json.{sensor['key']} }}}}"
