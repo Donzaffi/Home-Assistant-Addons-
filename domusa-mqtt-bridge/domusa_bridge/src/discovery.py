@@ -1,20 +1,6 @@
 import json
 
-class Discovery:
-    def __init__(self, mqtt, device, lang="de"):
-        self.mqtt = mqtt
-        self.device = device
-
-    async def publish(self):
-        cid = self.device["id"]
-        dev_info = {
-            "identifiers": [f"domusa_htec_{cid}"], 
-            "name": "Domusa HTEC", 
-            "manufacturer": "Domusa", 
-            "model": "HTEC Pro 12"
-        }
-
-       sensors = [
+SENSORS = [
 
     #
     # Temperaturen
@@ -266,19 +252,35 @@ class Discovery:
     }
 ]
 
-        for sensor in sensors:
+class Discovery:
+    def __init__(self, mqtt, device):
+        self.mqtt = mqtt
+        self.device = device
+
+    async def publish(self):
+        cid = self.device["id"]
+        dev_info = {
+            "identifiers": [f"domusa_htec_{cid}"], 
+            "name": "Domusa HTEC", 
+            "manufacturer": "Domusa", 
+            "model": "HTEC Pro 12"
+        }
+
+
+        for sensor in SENSORS:
 
             payload = {
                 "name": f"Domusa {sensor['name']}",
                 "unique_id": f"domusa_{cid}_{sensor['uid']}",
-                "device": dev_info,
+                "device": dev_info,a
                 "state_topic": f"domusa/{cid}/status",
+                "availability_topic": f"domusa/{cid}/availability",
                 "value_template": sensor.get(
-                    "value_template",
-                    f"{{{{ value_json.{sensor['key']} }}}}"
+                "value_template",
+                f"{{{{ value_json.{sensor['key']} }}}}"
                 ),
-                "icon": sensor.get("icon")
-            }
+               "icon": sensor.get("icon")
+                }
 
             if "unit" in sensor:
                 payload["unit_of_measurement"] = sensor["unit"]
