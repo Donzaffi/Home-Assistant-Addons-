@@ -145,15 +145,7 @@ SENSORS = [
         "icon": "mdi:calculator",
         "entity_category": "diagnostic"
     },
-    {
-        "uid": "condenser_calculated_temperature",
-        "name": "Verflüssiger berechnet",
-        "key": "s_cond_calc_c28",
-        "device_class": "temperature",
-        "unit": "°C",
-        "icon": "mdi:calculator",
-        "entity_category": "diagnostic"
-    },
+
     {
         "uid": "buffer_temperature",
         "name": "Puffer",
@@ -191,24 +183,6 @@ SENSORS = [
     },
 
     {
-        "uid": "ambient_temperature",
-        "name": "Raumfühler T2",
-        "key": "s_amb_t2_c26",
-        "device_class": "temperature",
-        "unit": "°C",
-        "icon": "mdi:home-thermometer",
-        "entity_category": "diagnostic"
-    },
-    {
-        "uid": "evaporating_temperature",
-        "name": "Verdampfer berechnet",
-        "key": "s_evap_calc_c27",
-        "device_class": "temperature",
-        "unit": "°C",
-        "icon": "mdi:thermometer-water",
-        "entity_category": "diagnostic"
-    },
-    {
         "uid": "condensing_temperature",
         "name": "Verflüssiger berechnet",
         "key": "s_cond_calc_c28",
@@ -217,33 +191,7 @@ SENSORS = [
         "icon": "mdi:thermometer-water",
         "entity_category": "diagnostic"
     },
-    {
-        "uid": "buffer_temperature",
-        "name": "Puffer",
-        "key": "s_buffer_c57",
-        "device_class": "temperature",
-        "unit": "°C",
-        "icon": "mdi:water-boiler",
-        "entity_category": "diagnostic"
-    },
-    {
-        "uid": "otc_temperature",
-        "name": "OTC Temperatur",
-        "key": "s_otc_c58",
-        "device_class": "temperature",
-        "unit": "°C",
-        "icon": "mdi:thermometer-chevron-down",
-        "entity_category": "diagnostic"
-    },
-    {
-        "uid": "boiler_temperature",
-        "name": "Kessel",
-        "key": "s_cald_c59",
-        "device_class": "temperature",
-        "unit": "°C",
-        "icon": "mdi:water-boiler",
-        "entity_category": "diagnostic"
-    },
+    
 
     #
     # Elektrik
@@ -280,21 +228,7 @@ SENSORS = [
         "unit": "A",
         "icon": "mdi:current-ac"
     },
-    {
-        "uid": "compressor_frequency_target",
-        "name": "Kompressor Sollfrequenz",
-        "key": "st_freq_c20",
-        "device_class": "frequency",
-        "unit": "Hz",
-        "icon": "mdi:sine-wave"
-    },
-    {
-        "uid": "pwm_raw",
-        "name": "PWM Rohwert",
-        "key": "s_pwm_c1",
-        "icon": "mdi:percent",
-        "entity_category": "diagnostic"
-    },
+
     {
         "uid": "thermal_power",
         "name": "Wärmeleistung",
@@ -387,12 +321,7 @@ SENSORS = [
     #
     # Betrieb
     #
-    {
-        "uid": "operation_mode",
-        "name": "Betriebsmodus",
-        "key": "m_hp_p01",
-        "icon": "mdi:cog"
-    },
+
     {
         "uid": "operation_state",
         "name": "Betriebszustand",
@@ -402,18 +331,7 @@ SENSORS = [
             "{% set map={0:'Standby',1:'Warmwasser',2:'Heizen',3:'Warmwasser + Heizen',4:'Kühlen'} %}"
             "{{ map.get(value_json.estado_func_c52|int,'Unbekannt') }}"
     },
-    {
-        "uid": "frequency_level",
-        "name": "Frequenzstufe",
-        "key": "m_freq",
-        "icon": "mdi:speedometer"
-    },
-    {
-        "uid": "heat_demand",
-        "name": "Wärmeanforderung",
-        "key": "demanda_hp",
-        "icon": "mdi:fire"
-    },
+
     {
         "uid": "zone1_demand",
         "name": "Zone 1 Anforderung",
@@ -470,24 +388,7 @@ SENSORS = [
         "key": "demanda_hp",
         "icon": "mdi:radiator"
     },
-    {
-        "uid": "dhw_active",
-        "name": "Warmwasser aktiv",
-        "key": "m_estadoacs",
-        "icon": "mdi:water-boiler"
-    },
-    {
-        "uid": "boost",
-        "name": "Boost",
-        "key": "func_boost",
-        "icon": "mdi:rocket-launch"
-    },
-    {
-        "uid": "manual_defrost",
-        "name": "Manuelles Abtauen",
-        "key": "manual_defrost_p28",
-        "icon": "mdi:snowflake-melt"
-    },
+
     #
     # Zonen
     #
