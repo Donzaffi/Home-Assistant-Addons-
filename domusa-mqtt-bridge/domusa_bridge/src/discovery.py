@@ -234,7 +234,7 @@ SENSORS = [
         "name": "Wasserfluss",
         "key": "s_q_c10",
         "device_class": "volume_flow_rate",
-        "unit": "kl/min",
+        "unit": "L/min",
         "icon": "mdi:water-pump"
     },
 
