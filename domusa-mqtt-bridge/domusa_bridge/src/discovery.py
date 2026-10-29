@@ -231,11 +231,11 @@ SENSORS = [
 
     {
         "uid": "thermal_power",
-        "name": "Wärmeleistung",
+        "name": "Wasserfluss",
         "key": "s_q_c10",
-        "device_class": "power",
-        "unit": "kW",
-        "icon": "mdi:heat-wave"
+        "device_class": "volume_flow_rate",
+        "unit": "kl/min",
+        "icon": "mdi:water-pump"
     },
 
     #
