@@ -15,7 +15,7 @@ SENSORS = [
     },
     {
         "uid": "evaporator_temperature",
-        "name": "Verdampfer",
+        "name": "Verdampfertemperatur",
         "key": "s_evap_c00",
         "device_class": "temperature",
         "unit": "°C",
@@ -23,7 +23,7 @@ SENSORS = [
     },
     {
         "uid": "discharge_temperature",
-        "name": "Verdichterausgang",
+        "name": "Verdichter-Austrittstemperatur",
         "key": "s_discharge_c01",
         "device_class": "temperature",
         "unit": "°C",
@@ -31,7 +31,7 @@ SENSORS = [
     },
     {
         "uid": "suction_temperature",
-        "name": "Sauggas",
+        "name": "Sauggastemperatur",
         "key": "s_suction_c03",
         "device_class": "temperature",
         "unit": "°C",
@@ -39,7 +39,7 @@ SENSORS = [
     },
     {
         "uid": "condenser_temperature",
-        "name": "Verflüssiger",
+        "name": "Wärmetauschertemperatur",
         "key": "s_condens_c06",
         "device_class": "temperature",
         "unit": "°C",
@@ -103,7 +103,7 @@ SENSORS = [
     },
     {
         "uid": "delta_temperature",
-        "name": "Delta T",
+        "name": "Differenz Wassertemperatur",
         "key": "dt_hp_c11",
         "device_class": "temperature",
         "unit": "°C",
@@ -111,7 +111,7 @@ SENSORS = [
     },
     {
         "uid": "ipm_temperature",
-        "name": "IPM",
+        "name": "IPM Modultemperatur",
         "key": "s_ipm_c22",
         "device_class": "temperature",
         "unit": "°C",
@@ -119,26 +119,8 @@ SENSORS = [
         "entity_category": "diagnostic"
     },
     {
-        "uid": "t6_temperature",
-        "name": "T6",
-        "key": "s_t6_c25",
-        "device_class": "temperature",
-        "unit": "°C",
-        "icon": "mdi:thermometer",
-        "entity_category": "diagnostic"
-    },
-    {
-        "uid": "ambient_t2_temperature",
-        "name": "Raumfühler T2",
-        "key": "s_amb_t2_c26",
-        "device_class": "temperature",
-        "unit": "°C",
-        "icon": "mdi:home-thermometer",
-        "entity_category": "diagnostic"
-    },
-    {
         "uid": "evaporator_calculated_temperature",
-        "name": "Verdampfer berechnet",
+        "name": "Verdampfungstemperatur,
         "key": "s_evap_calc_c27",
         "device_class": "temperature",
         "unit": "°C",
@@ -184,7 +166,7 @@ SENSORS = [
 
     {
         "uid": "condensing_temperature",
-        "name": "Verflüssiger berechnet",
+        "name": "Kondensationstemperatur",
         "key": "s_cond_calc_c28",
         "device_class": "temperature",
         "unit": "°C",
