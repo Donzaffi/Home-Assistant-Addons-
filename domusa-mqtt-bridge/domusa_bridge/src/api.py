@@ -7,50 +7,73 @@ class DomusaAPI:
         self.base = "https://ic-api-app.azurewebsites.net/api"
         self.auth = auth
 
-    async def _get_headers(self):
+    async def _request(self, method, url):
+        # Token für den ersten API-Aufruf holen.
         token = await self.auth.get_token()
 
-        return {
+        if not token:
+            print("API-Aufruf abgebrochen: Kein gültiger Token verfügbar")
+            return {}
+
+        headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
         }
 
-    async def _request(self, method, url):
-        headers = await self._get_headers()
+        timeout = aiohttp.ClientTimeout(total=10)
 
-        async with aiohttp.ClientSession(headers=headers) as session:
+        try:
+            async with aiohttp.ClientSession(timeout=timeout) as session:
 
-            async with session.request(method, url, timeout=10) as response:
+                async with session.request(
+                    method,
+                    url,
+                    headers=headers
+                ) as response:
 
-                if response.status == 200:
-                    return await response.json()
+                    if response.status == 200:
+                        return await response.json()
 
-                if response.status in (401, 440):
+                    if response.status not in (401, 440):
+                        print(f"HTTP {response.status}")
+                        return {}
 
-                    print("Token abgelaufen -> Refresh")
+                    print("Token abgelaufen oder ungültig -> Refresh")
 
-                    self.auth.invalidate_token()
+                # Refresh außerhalb des ersten Response-Kontexts.
+                new_token = await self.auth.refresh_after_unauthorized(token)
 
-                    await self.auth.perform_refresh()
+                if not new_token:
+                    print("API-Aufruf fehlgeschlagen: Token-Erneuerung nicht möglich")
+                    return {}
 
-                    headers = await self._get_headers()
+                retry_headers = {
+                    "Authorization": f"Bearer {new_token}",
+                    "Content-Type": "application/json"
+                }
 
-                    async with aiohttp.ClientSession(headers=headers) as retry:
+                # API-Aufruf genau einmal wiederholen.
+                async with session.request(
+                    method,
+                    url,
+                    headers=retry_headers
+                ) as retry_response:
 
-                        async with retry.request(method, url, timeout=10) as retry_response:
+                    if retry_response.status == 200:
+                        return await retry_response.json()
 
-                            if retry_response.status == 200:
-                                return await retry_response.json()
+                    print(
+                        f"Retry fehlgeschlagen ({retry_response.status})"
+                    )
+                    return {}
 
-                            print(
-                                f"Retry fehlgeschlagen ({retry_response.status})"
-                            )
+        except (aiohttp.ClientError, TimeoutError) as ex:
+            print(f"API Netzwerkfehler: {ex}")
+            return {}
 
-                            return {}
-
-                print(f"HTTP {response.status}")
-
-                return {}
+        except Exception as ex:
+            print(f"API Fehler: {ex}")
+            return {}
 
     async def _get(self, url):
         return await self._request("GET", url)
@@ -60,10 +83,7 @@ class DomusaAPI:
 
         data = await self._get(url)
 
-        if not isinstance(data, dict):
-            return None
-
-        if not data:
+        if not isinstance(data, dict) or not data:
             return None
 
         first_key = next(iter(data))
