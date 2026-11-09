@@ -1,4 +1,3 @@
-
 import json
 
 SENSORS = [
@@ -68,6 +67,15 @@ SENSORS = [
         "device_class": "temperature",
         "unit": "°C",
         "icon": "mdi:water-thermometer",
+    },
+    {
+        "uid": "buffer_temperature",
+        "name": "Puffertemperatur",
+        "key": "s_buffer_c57",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:thermometer-water",
+        "entity_category": "diagnostic",
     },
 
     # -------------------------------------------------
@@ -231,7 +239,7 @@ SENSORS = [
     },
 
     # -------------------------------------------------
-    # BETRIEBSZUSTAND
+    # BETRIEBSZUSTAND & SOLLWERTE
     # -------------------------------------------------
     {
         "uid": "operation_state",
@@ -261,6 +269,15 @@ SENSORS = [
         "key": "demanda_hp",
         "icon": "mdi:radiator",
     },
+    {
+        "uid": "buffer_target",
+        "name": "Puffer Soll",
+        "key": "st_buffer_c_p123",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:water-boiler",
+    },
+
 
     # -------------------------------------------------
     # SG READY – BINÄRE EINGÄNGE
@@ -336,9 +353,6 @@ SENSORS = [
     },
 ]
 
-
-# Diese UIDs wurden aus der Discovery entfernt.
-# Ihre alten retained Konfigurationen werden gelöscht.
 REMOVED_SENSOR_UIDS = [
     "zone2_demand",
     "zone3_demand",
@@ -363,23 +377,10 @@ class Discovery:
             "model": "HTEC Pro 12",
         }
 
-        # -------------------------------------------------
-        # ALTE DISCOVERY-EINTRÄGE LÖSCHEN
-        # -------------------------------------------------
         for uid in REMOVED_SENSOR_UIDS:
-            topic = (
-                f"homeassistant/sensor/domusa_{cid}_{uid}/config"
-            )
+            topic = f"homeassistant/sensor/domusa_{cid}_{uid}/config"
+            await self.mqtt.client.publish(topic, "", retain=True)
 
-            await self.mqtt.client.publish(
-                topic,
-                "",
-                retain=True,
-            )
-
-        # -------------------------------------------------
-        # AKTUELLE SENSOREN VERÖFFENTLICHEN
-        # -------------------------------------------------
         for sensor in SENSORS:
             component = sensor.get("component", "sensor")
 
@@ -391,7 +392,7 @@ class Discovery:
                 "availability_topic": f"domusa/{cid}/availability",
                 "value_template": sensor.get(
                     "value_template",
-                    f"{{{{ value_json.{sensor['key']} }}}}",
+                    f"{{{{ value_json.{sensor['key']} }}}}"
                 ),
                 "icon": sensor.get("icon"),
             }
@@ -419,10 +420,7 @@ class Discovery:
             if "entity_category" in sensor:
                 payload["entity_category"] = sensor["entity_category"]
 
-            topic = (
-                f"homeassistant/{component}/"
-                f"domusa_{cid}_{sensor['uid']}/config"
-            )
+            topic = f"homeassistant/{component}/domusa_{cid}_{sensor['uid']}/config"
 
             await self.mqtt.client.publish(
                 topic,
