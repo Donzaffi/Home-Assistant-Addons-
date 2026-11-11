@@ -419,7 +419,7 @@ SENSORS = [
         "icon": "mdi:water-thermometer",
         "entity_category": "diagnostic",
     },
-        {
+    {
         "uid": "config_buffer_hysteresis",
         "name": "Puffer-Hysterese",
         "key": "hyst_buffer_p122",
@@ -427,7 +427,7 @@ SENSORS = [
         "icon": "mdi:thermometer-water",
         "entity_category": "diagnostic",
     },
-        {
+    {
         "uid": "heating_circuit_pump",
         "name": "Heizkreispumpe",
         "key": "salidas_hp_10_c63",
