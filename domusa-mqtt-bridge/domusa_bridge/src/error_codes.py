@@ -1,17 +1,23 @@
 
 import re
 
+
+# Bedeutungen aus dem DOMUSA DUAL CLIMA HT Service Manual,
+# Kapitel 11 "Error Management Procedure".
+# Nicht im Handbuch beschriebene API-Codes bleiben unbekannt.
+
 ERROR_CODES = {
     "e01": "Außentemperaturfühler defekt",
     "e02": "Temperaturfühler äußerer Wärmetauscher defekt",
     "e03": "Ansaugtemperaturfühler defekt",
-    "e04": "Wärmepumpenkonfiguration fehlerhaft",
-    "e05": "Wärmepumpenkonfiguration fehlerhaft",
+    "e04": "Wärmepumpeneinstellung fehlerhaft",
+    "e05": "Wärmepumpeneinstellung fehlerhaft",
     "e06": "Verdichter-Austrittstemperaturfühler defekt",
     "e07": "Warmwasser-Temperaturfühler defekt",
     "e08": "Vorlauftemperaturfühler defekt",
     "e09": "Rücklauftemperaturfühler defekt",
     "e10": "Temperaturfühler innerer Wärmetauscher defekt",
+
     "e11": "Hochdrucksensor defekt",
     "e12": "Niederdrucksensor defekt",
     "e13": "Hochdruckschutz",
@@ -23,21 +29,21 @@ ERROR_CODES = {
     "e20": "IPM- oder Verdichterfehler",
     "e21": "Spannungsfehler",
     "e22": "Temperaturdifferenz Vorlauf/Rücklauf zu groß",
-    "e23": "Frostschutz Warmwasserbetrieb",
-    "e24": "Frostschutz Heiz-/Kühlbetrieb",
+    "e23": "Frostschutzfunktion Warmwasserbetrieb",
+    "e24": "Frostschutzfunktion Heiz-/Kühlbetrieb",
     "e26": "Wärmepumpeneinstellung fehlerhaft",
     "e27": "Raumtemperatur überschreitet Grenzwert",
     "e28": "Rücklauftemperatur im Kühlbetrieb zu hoch",
     "e29": "Raumtemperaturfühler defekt",
     "e32": "Vorlauftemperatur zu hoch",
-    "e36": "Lüfter-Kommunikationsfehler",
+    "e36": "Lüfter-Kommunikationsfehler (Drehstrom)",
     "e40": "Rücklauftemperatur im Kühlbetrieb zu niedrig",
     "e44": "Lüftermotorfehler",
     "e50": "Temperatur äußerer Wärmetauscher zu hoch",
     "e56": "Überstromschutz",
     "e58": "Außentemperatur unterhalb des Grenzwerts",
-    "e59": "Vorlauf/Rücklauf vertauscht oder Vierwegeventil defekt",
-    "e99": "Kommunikationsfehler IPM-Modul",
+    "e59": "Vorlauf-/Rücklauffühler vertauscht oder Vierwegeventil defekt",
+    "e99": "Kommunikationsfehler mit dem IPM-Modul",
 
     "e20-1": "Überstrom im IPM",
     "e20-5": "Verdichterfehler",
@@ -53,46 +59,52 @@ ERROR_CODES = {
 
 
 def extract_active_errors(data):
-    active = []
+    """
+    Sucht aktive err_* Flags im DOMUSA-API-Payload.
+    Beispiel:
+      err_4_2_e20_320 -> E20-320
+    """
+
+    active = {}
 
     for key, value in data.items():
         if not key.startswith("err_"):
             continue
 
-        if value not in (True, 1):
+        # Die API liefert boolesche Werte.
+        if value is not True and value != 1:
             continue
 
-        match = re.search(
-            r"_(e\d+(?:_\d+)?)$",
-            key.lower()
-        )
+        match = re.search(r"_(e\d+(?:_\d+)?)$", key.lower())
 
         if not match:
             continue
 
-        # API: e20_320 -> Dokumentationsformat: e20-320
+        # API-Unterstrich in E20-Untercodes in Bindestrich umwandeln.
         code = match.group(1).replace("_", "-")
         description = ERROR_CODES.get(
             code,
-            "Unbekannter Fehlercode – Dokumentation fehlt"
+            "Bedeutung in den vorliegenden Dokumenten nicht zugeordnet"
         )
 
-        active.append({
-            "code": code.upper(),
+        # Doppelte Codes, z. B. E44, nur einmal anzeigen.
+        active[code.upper()] = description
+
+    def sort_key(item):
+        code = item[0].lower()
+        numbers = re.findall(r"\d+", code)
+        return tuple(int(number) for number in numbers)
+
+    return [
+        {
+            "code": code,
             "description": description,
-            "source_key": key,
-        })
-
-    # E44 kann über mehrere API-Flags kommen.
-    # Gleiche Fehlercodes nur einmal ausgeben.
-    unique = {}
-    for error in active:
-        unique[error["code"]] = error
-
-    return sorted(
-        unique.values(),
-        key=lambda error: error["code"]
-    )
+        }
+        for code, description in sorted(
+            active.items(),
+            key=sort_key
+        )
+    ]
 
 
 def get_error_summary(data):
