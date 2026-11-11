@@ -351,6 +351,75 @@ SENSORS = [
         "key": "sub_alarma",
         "icon": "mdi:alert-circle",
     },
+
+
+    
+    # -------------------------------------------------
+    # KONFIGURATION – TYP 19
+    # -------------------------------------------------
+    {
+        "uid": "config_acs_enabled",
+        "name": "Warmwasserfreigabe",
+        "key": "m_acs_p63",
+        "component": "binary_sensor",
+        "value_template": (
+            "{{ 'ON' if value_json.m_acs_p63 | bool else 'OFF' }}"
+        ),
+        "icon": "mdi:water-boiler",
+        "entity_category": "config",
+    },
+    {
+        "uid": "config_sgready_enabled",
+        "name": "SG-Ready-Funktion aktiviert",
+        "key": "m_sgready_p201",
+        "component": "binary_sensor",
+        "value_template": (
+            "{{ 'ON' if value_json.m_sgready_p201 | bool else 'OFF' }}"
+        ),
+        "icon": "mdi:solar-power",
+        "entity_category": "config",
+    },
+    {
+        "uid": "config_night_mode",
+        "name": "Nachtmodus",
+        "key": "m_noche_p17",
+        "component": "binary_sensor",
+        "value_template": (
+            "{{ 'ON' if value_json.m_noche_p17 | bool else 'OFF' }}"
+        ),
+        "icon": "mdi:weather-night",
+        "entity_category": "config",
+    },
+    {
+        "uid": "config_buffer_mode",
+        "name": "Puffermodus",
+        "key": "m_buffer_p121",
+        "component": "binary_sensor",
+        "value_template": (
+            "{{ 'ON' if value_json.m_buffer_p121 | bool else 'OFF' }}"
+        ),
+        "icon": "mdi:storage-tank",
+        "entity_category": "config",
+    },
+    {
+        "uid": "config_heat_cool_hysteresis",
+        "name": "Hysterese Heizen/Kühlen",
+        "key": "hyst_c_f_p06",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:thermometer",
+        "entity_category": "config",
+    },
+    {
+        "uid": "config_acs_hysteresis",
+        "name": "Warmwasser-Hysterese",
+        "key": "hyst_acs_p07",
+        "device_class": "temperature",
+        "unit": "°C",
+        "icon": "mdi:water-thermometer",
+        "entity_category": "config",
+    },
+
 ]
 
 REMOVED_SENSOR_UIDS = [
