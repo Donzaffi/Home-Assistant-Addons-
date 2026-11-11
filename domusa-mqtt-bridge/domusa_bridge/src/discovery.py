@@ -351,6 +351,36 @@ SENSORS = [
         "key": "sub_alarma",
         "icon": "mdi:alert-circle",
     },
+    
+    # -------------------------------------------------
+    # FEHLERDIAGNOSE
+    # -------------------------------------------------
+    {
+        "uid": "error_active",
+        "name": "DOMUSA Fehler aktiv",
+        "key": "error_active",
+        "component": "binary_sensor",
+        "value_template": (
+            "{{ 'ON' if value_json.error_active | bool else 'OFF' }}"
+        ),
+        "icon": "mdi:alert-circle",
+        "entity_category": "diagnostic",
+    },
+    {
+        "uid": "error_codes",
+        "name": "DOMUSA Fehlercodes",
+        "key": "error_codes",
+        "icon": "mdi:alert",
+        "entity_category": "diagnostic",
+    },
+    {
+        "uid": "error_description",
+        "name": "DOMUSA Fehlerbeschreibung",
+        "key": "error_description",
+        "icon": "mdi:text-box-search",
+        "entity_category": "diagnostic",
+    },
+
 
 
     
