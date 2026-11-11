@@ -366,7 +366,7 @@ SENSORS = [
             "{{ 'ON' if value_json.m_acs_p63 | bool else 'OFF' }}"
         ),
         "icon": "mdi:water-boiler",
-        "entity_category": "config",
+        "entity_category": "diagnostic",
     },
     {
         "uid": "config_sgready_enabled",
@@ -377,7 +377,7 @@ SENSORS = [
             "{{ 'ON' if value_json.m_sgready_p201 | bool else 'OFF' }}"
         ),
         "icon": "mdi:solar-power",
-        "entity_category": "config",
+        "entity_category": "diagnostic",
     },
     {
         "uid": "config_night_mode",
@@ -388,7 +388,7 @@ SENSORS = [
             "{{ 'ON' if value_json.m_noche_p17 | bool else 'OFF' }}"
         ),
         "icon": "mdi:weather-night",
-        "entity_category": "config",
+        "entity_category": "diagnostic",
     },
     {
         "uid": "config_buffer_mode",
@@ -399,7 +399,7 @@ SENSORS = [
             "{{ 'ON' if value_json.m_buffer_p121 | bool else 'OFF' }}"
         ),
         "icon": "mdi:storage-tank",
-        "entity_category": "config",
+        "entity_category": "diagnostic",
     },
     {
         "uid": "config_heat_cool_hysteresis",
@@ -408,7 +408,7 @@ SENSORS = [
         "device_class": "temperature",
         "unit": "°C",
         "icon": "mdi:thermometer",
-        "entity_category": "config",
+        "entity_category": "diagnostic",
     },
     {
         "uid": "config_acs_hysteresis",
@@ -417,7 +417,7 @@ SENSORS = [
         "device_class": "temperature",
         "unit": "°C",
         "icon": "mdi:water-thermometer",
-        "entity_category": "config",
+        "entity_category": "diagnostic",
     },
 
 ]
