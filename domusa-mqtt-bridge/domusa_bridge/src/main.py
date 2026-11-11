@@ -1,12 +1,13 @@
+
 import asyncio
 import json
 import sys
 import os
-from error_codes import get_error_summary
 
-# Pfad zum src-Verzeichnis hinzufügen, damit die Module gefunden werden
+# Pfad zum src-Verzeichnis hinzufügen
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
+from error_codes import get_error_summary
 from auth import Auth
 from api import DomusaAPI
 from mqtt import MQTT
@@ -39,8 +40,23 @@ async def poll_loop(api, state, device, cfg):
                         full_data[key] = value
 
             if full_data:
+                # Aktive DOMUSA-Fehler aus den err_* Flags ermitteln
+                error_summary = get_error_summary(full_data)
+
+                # Berechnete Werte zum bestehenden API-Payload hinzufügen
+                full_data.update(error_summary)
+
+                if error_summary["error_active"]:
+                    log(
+                        "DOMUSA FEHLER: "
+                        + error_summary["error_description"]
+                    )
+                else:
+                    log("Keine aktiven DOMUSA-Fehler")
+
                 log(f"Sende {len(full_data)} Sensoren an MQTT")
                 await state.publish(full_data)
+
             else:
                 log("Warnung: Keine Daten von der API erhalten!")
 
