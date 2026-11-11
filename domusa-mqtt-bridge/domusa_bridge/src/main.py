@@ -2,6 +2,7 @@ import asyncio
 import json
 import sys
 import os
+from error_codes import get_error_summary
 
 # Pfad zum src-Verzeichnis hinzufügen, damit die Module gefunden werden
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
