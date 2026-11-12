@@ -41,20 +41,20 @@ class Router:
             return False, "Value must be finite"
 
         if parameter == "hyst_acs_p07":
-            if not isinstance(value, int) or not 1 <= value <= 15:
-                return False, "hyst_acs_p07 must be an integer from 1 to 15"
+            if not isinstance(value, int) or not 5 <= value <= 10:
+                return False, "hyst_acs_p07 must be an integer from 5 to 10"
 
         elif parameter == "m_c1_p20":
             if not isinstance(value, int) or value not in (0, 1, 2):
                 return False, "m_c1_p20 must be 0, 1 or 2"
 
         elif parameter in ("st_sg2_c_p202", "st_sgon_c_p203"):
-            if value != 0 and not 25 <= value <= 75:
-                return False, "Heating SG-Ready setpoint must be 0 or 25 to 75"
+            if value != 0 and not 40 <= value <= 65:
+                return False, "Heating SG-Ready setpoint must be 0 or 40 to 65"
 
         elif parameter in ("st_sg2_acs_p206", "st_sgon_acs_p207"):
-            if value != 0 and not 25 <= value <= 70:
-                return False, "DHW SG-Ready setpoint must be 0 or 25 to 70"
+            if value != 0 and not 40 <= value <= 65:
+                return False, "DHW SG-Ready setpoint must be 0 or 40 to 65"
 
         return True, None
 
