@@ -521,6 +521,63 @@ SENSORS = [
         "icon": "mdi:chart-box",
         "entity_category": "diagnostic",
     },
+        # -------------------------------------------------
+    # TAGESENERGIE UND COP – TYP 22
+    # -------------------------------------------------
+    {
+        "uid": "daily_production",
+        "name": "Tagesproduktion",
+        "key": "contadores",
+        "value_template": (
+            "{{ value_json.get('contadores', {}).get("
+            "'prod_dia_' ~ now().day) }}"
+        ),
+        "device_class": "energy",
+        "unit": "kWh",
+        "state_class": "total_increasing",
+        "icon": "mdi:chart-bar",
+    },
+    {
+        "uid": "daily_renewable",
+        "name": "Erneuerbare Tagesenergie",
+        "key": "contadores",
+        "value_template": (
+            "{{ value_json.get('contadores', {}).get("
+            "'renov_dia_' ~ now().day) }}"
+        ),
+        "device_class": "energy",
+        "unit": "kWh",
+        "state_class": "total_increasing",
+        "icon": "mdi:leaf",
+    },
+    {
+        "uid": "daily_consumption",
+        "name": "Tagesverbrauch",
+        "key": "contadores",
+        "value_template": (
+            "{{ value_json.get('contadores', {}).get("
+            "'consum_dia_' ~ now().day) }}"
+        ),
+        "device_class": "energy",
+        "unit": "kWh",
+        "state_class": "total_increasing",
+        "icon": "mdi:flash",
+    },
+    {
+        "uid": "daily_cop",
+        "name": "Tages-COP",
+        "key": "contadores",
+        "value_template": (
+            "{% set counters = value_json.get('contadores', {}) %}"
+            "{% set day = now().day %}"
+            "{% set production = counters.get('prod_dia_' ~ day, 0) | float(0) %}"
+            "{% set consumption = counters.get('consum_dia_' ~ day, 0) | float(0) %}"
+            "{{ (production / consumption) | round(2) "
+            "if consumption > 0 else none }}"
+        ),
+        "state_class": "measurement",
+        "icon": "mdi:chart-line",
+    },
 
 
 ]
