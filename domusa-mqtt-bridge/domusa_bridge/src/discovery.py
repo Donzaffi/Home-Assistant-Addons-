@@ -490,6 +490,9 @@ SENSORS = [
         "value_template": (
             "{{ value_json.contadores.cont_h_comp_c50 }}"
         ),
+        "device_class": "duration",
+        "unit": "h",
+        "state_class": "total",
         "icon": "mdi:timer-outline",
         "entity_category": "diagnostic",
     },
@@ -503,6 +506,21 @@ SENSORS = [
         "icon": "mdi:snowflake-melt",
         "entity_category": "diagnostic",
     },
+    {
+        "uid": "energy_statistics",
+        "name": "Energiedaten",
+        "key": "contadores",
+        "value_template": (
+            "{{ 'verfügbar' if value_json.contadores is mapping "
+            "else 'nicht verfügbar' }}"
+        ),
+        "json_attributes_template": (
+            "{{ value_json.contadores | tojson "
+            "if value_json.contadores is mapping else '{}' }}"
+        ),
+        "icon": "mdi:chart-box",
+        "entity_category": "diagnostic",
+    },
 
 
 ]
@@ -513,6 +531,7 @@ REMOVED_SENSOR_UIDS = [
     "boost_mode",
     "manual_defrost",
 ]
+
 
 
 class Discovery:
@@ -561,6 +580,7 @@ class Discovery:
             if "device_class" in sensor:
                 payload["device_class"] = sensor["device_class"]
 
+            # Standard-State-Class für Messwerte
             if sensor.get("device_class") in (
                 "temperature",
                 "current",
@@ -571,13 +591,27 @@ class Discovery:
             ):
                 payload["state_class"] = "measurement"
 
+            # Individuelle State-Class überschreibt den Standard
+            if "state_class" in sensor:
+                payload["state_class"] = sensor["state_class"]
+
             if "entity_category" in sensor:
                 payload["entity_category"] = sensor["entity_category"]
+
+            # Zusätzliche JSON-Attribute, z. B. historische Energiedaten
+            if "json_attributes_template" in sensor:
+                payload["json_attributes_topic"] = (
+                    f"domusa/{cid}/status"
+                )
+                payload["json_attributes_template"] = (
+                    sensor["json_attributes_template"]
+                )
 
             topic = f"homeassistant/{component}/domusa_{cid}_{sensor['uid']}/config"
 
             await self.mqtt.client.publish(
                 topic,
-                json.dumps(payload),
+                json.dumps(payload, ensure_ascii=False),
                 retain=True,
             )
+
