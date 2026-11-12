@@ -469,6 +469,42 @@ SENSORS = [
         "entity_category": "diagnostic",
     },
 
+    
+    # -------------------------------------------------
+    # ZÄHLER – TYP 22
+    # -------------------------------------------------
+    {
+        "uid": "compressor_starts",
+        "name": "Verdichterstarts",
+        "key": "contadores.cont_n_comp",
+        "value_template": (
+            "{{ value_json.contadores.cont_n_comp }}"
+        ),
+        "icon": "mdi:counter",
+        "entity_category": "diagnostic",
+    },
+    {
+        "uid": "compressor_runtime",
+        "name": "Verdichterlaufzeit",
+        "key": "contadores.cont_h_comp_c50",
+        "value_template": (
+            "{{ value_json.contadores.cont_h_comp_c50 }}"
+        ),
+        "icon": "mdi:timer-outline",
+        "entity_category": "diagnostic",
+    },
+    {
+        "uid": "defrost_count",
+        "name": "Abtauvorgänge",
+        "key": "contadores.cont_n_defrost",
+        "value_template": (
+            "{{ value_json.contadores.cont_n_defrost }}"
+        ),
+        "icon": "mdi:snowflake-melt",
+        "entity_category": "diagnostic",
+    },
+
+
 ]
 
 REMOVED_SENSOR_UIDS = [
