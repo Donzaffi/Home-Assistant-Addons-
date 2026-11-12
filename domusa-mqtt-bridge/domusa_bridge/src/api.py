@@ -1,3 +1,4 @@
+
 import aiohttp
 
 
@@ -8,11 +9,11 @@ class DomusaAPI:
         self.auth = auth
 
     async def _request(self, method, url):
-        # Token für den ersten API-Aufruf holen.
+        # Retrieve the token for the initial API request.
         token = await self.auth.get_token()
 
         if not token:
-            print("API-Aufruf abgebrochen: Kein gültiger Token verfügbar")
+            print("API request aborted: No valid token available")
             return {}
 
         headers = {
@@ -35,16 +36,19 @@ class DomusaAPI:
                         return await response.json()
 
                     if response.status not in (401, 440):
-                        print(f"HTTP {response.status}")
+                        print(f"HTTP {response.status} for {url}")
                         return {}
 
-                    print("Token abgelaufen oder ungültig -> Refresh")
+                    print("Token expired or invalid -> Refreshing token")
 
-                # Refresh außerhalb des ersten Response-Kontexts.
+                # Perform the token refresh outside the initial response context.
                 new_token = await self.auth.refresh_after_unauthorized(token)
 
                 if not new_token:
-                    print("API-Aufruf fehlgeschlagen: Token-Erneuerung nicht möglich")
+                    print(
+                        "API request failed: "
+                        "Unable to refresh the token"
+                    )
                     return {}
 
                 retry_headers = {
@@ -52,7 +56,7 @@ class DomusaAPI:
                     "Content-Type": "application/json"
                 }
 
-                # API-Aufruf genau einmal wiederholen.
+                # Retry the API request exactly once.
                 async with session.request(
                     method,
                     url,
@@ -63,16 +67,17 @@ class DomusaAPI:
                         return await retry_response.json()
 
                     print(
-                        f"Retry fehlgeschlagen ({retry_response.status})"
+                        f"Retry failed "
+                        f"({retry_response.status}) for {url}"
                     )
                     return {}
 
         except (aiohttp.ClientError, TimeoutError) as ex:
-            print(f"API Netzwerkfehler: {ex}")
+            print(f"API network error: {ex}")
             return {}
 
         except Exception as ex:
-            print(f"API Fehler: {ex}")
+            print(f"API error: {ex}")
             return {}
 
     async def _get(self, url):
@@ -103,4 +108,9 @@ class DomusaAPI:
     async def get_config(self, cid):
         return await self._get(
             f"{self.base}/v2/calderas/{cid}/configuracion"
+        )
+
+    async def get_contadores(self, cid):
+        return await self._get(
+            f"{self.base}/v2/calderas/{cid}/contadores"
         )
