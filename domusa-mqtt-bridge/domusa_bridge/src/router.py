@@ -1,3 +1,4 @@
+
 import asyncio
 import json
 import math
@@ -31,6 +32,7 @@ class Router:
         self.result_topic = f"domusa/{cid}/set/result"
 
     def validate(self, parameter, value):
+
         if parameter not in self.CONFIG_PARAMETERS | self.ESTADO_PARAMETERS:
             return False, "Parameter is not allowed"
 
@@ -40,18 +42,27 @@ class Router:
         if not math.isfinite(value):
             return False, "Value must be finite"
 
-        if parameter == "hyst_acs_p07":
+        # Heating and buffer hysteresis: integer from 5 to 11.
+        if parameter in ("hyst_c_f_p06", "hyst_buffer_p122"):
+            if not isinstance(value, int) or not 5 <= value <= 11:
+                return False, f"{parameter} must be an integer from 5 to 11"
+
+        # DHW hysteresis: integer from 5 to 10.
+        elif parameter == "hyst_acs_p07":
             if not isinstance(value, int) or not 5 <= value <= 10:
                 return False, "hyst_acs_p07 must be an integer from 5 to 10"
 
+        # Operating mode: 0, 1 or 2.
         elif parameter == "m_c1_p20":
             if not isinstance(value, int) or value not in (0, 1, 2):
                 return False, "m_c1_p20 must be 0, 1 or 2"
 
+        # Heating SG-Ready setpoints.
         elif parameter in ("st_sg2_c_p202", "st_sgon_c_p203"):
             if value != 0 and not 40 <= value <= 65:
                 return False, "Heating SG-Ready setpoint must be 0 or 40 to 65"
 
+        # DHW SG-Ready setpoints.
         elif parameter in ("st_sg2_acs_p206", "st_sgon_acs_p207"):
             if value != 0 and not 40 <= value <= 65:
                 return False, "DHW SG-Ready setpoint must be 0 or 40 to 65"
@@ -65,6 +76,8 @@ class Router:
         )
 
     async def handle_command(self, payload):
+
+        # Decode and parse the MQTT payload.
         try:
             command = json.loads(payload.decode("utf-8"))
 
@@ -75,6 +88,7 @@ class Router:
             })
             return
 
+        # Ensure the payload is a JSON object.
         if not isinstance(command, dict):
             await self.publish_result({
                 "success": False,
@@ -92,6 +106,7 @@ class Router:
             })
             return
 
+        # Validate the requested parameter and value.
         valid, error = self.validate(parameter, value)
 
         if not valid:
