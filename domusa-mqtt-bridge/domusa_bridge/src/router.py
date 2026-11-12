@@ -1,4 +1,3 @@
-
 import asyncio
 import json
 import math
@@ -22,10 +21,11 @@ class Router:
         "st_sgon_acs_p207",
     }
 
-    def __init__(self, api, mqtt, device):
+    def __init__(self, api, mqtt, device, refresh_status=None):
         self.api = api
         self.mqtt = mqtt
         self.device = device
+        self.refresh_status = refresh_status
 
         cid = device["id"]
         self.command_topic = f"domusa/{cid}/set"
@@ -167,12 +167,33 @@ class Router:
             })
             return
 
+        # Refresh the complete Home Assistant status immediately.
+        status_updated = False
+        status_error = None
+
+        if self.refresh_status is not None:
+            try:
+                status_updated = await self.refresh_status()
+
+                if not status_updated:
+                    status_error = "No status data received during refresh"
+
+            except Exception as ex:
+                status_error = str(ex)
+                print(f"ERROR: Immediate status refresh failed: {ex}")
+
         # Publish successful write confirmation.
-        await self.publish_result({
+        result = {
             "success": True,
             "parameter": parameter,
-            "value": actual_value
-        })
+            "value": actual_value,
+            "status_updated": status_updated
+        }
+
+        if status_error:
+            result["status_error"] = status_error
+
+        await self.publish_result(result)
 
         print(f"DEBUG: Parameter {parameter} updated to {actual_value}")
 
