@@ -35,6 +35,7 @@ class MQTT:
             raise RuntimeError("MQTT client is not connected")
 
         return self.client.messages
+
     async def publish(self, topic, payload, qos=0, retain=False):
         if self.client is None:
             raise RuntimeError("MQTT client is not connected")
