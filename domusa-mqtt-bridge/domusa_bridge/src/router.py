@@ -1,3 +1,4 @@
+import asyncio
 import json
 import math
 
@@ -66,6 +67,7 @@ class Router:
     async def handle_command(self, payload):
         try:
             command = json.loads(payload.decode("utf-8"))
+
         except (UnicodeDecodeError, json.JSONDecodeError):
             await self.publish_result({
                 "success": False,
@@ -103,13 +105,16 @@ class Router:
         cid = self.device["id"]
         request_data = {parameter: value}
 
+        # Select the correct DOMUSA API endpoint.
         if parameter in self.CONFIG_PARAMETERS:
             success = await self.api.put_config(cid, request_data)
             read_method = self.api.get_config
+
         else:
             success = await self.api.put_estado(cid, request_data)
             read_method = self.api.get_estado
 
+        # Stop if the PUT request failed.
         if not success:
             await self.publish_result({
                 "success": False,
@@ -118,6 +123,9 @@ class Router:
                 "error": "DOMUSA API rejected the write request"
             })
             return
+
+        # Allow the controller time to apply the new value.
+        await asyncio.sleep(1)
 
         # Read back the parameter to verify the resulting device value.
         current_data = await read_method(cid)
@@ -133,6 +141,7 @@ class Router:
 
         actual_value = current_data[parameter]
 
+        # Compare the requested value with the actual device value.
         if actual_value != value:
             await self.publish_result({
                 "success": False,
@@ -143,6 +152,7 @@ class Router:
             })
             return
 
+        # Publish successful write confirmation.
         await self.publish_result({
             "success": True,
             "parameter": parameter,
@@ -154,7 +164,10 @@ class Router:
     async def listen(self):
         await self.mqtt.subscribe(self.command_topic)
 
-        print(f"DEBUG: Listening for DOMUSA commands on {self.command_topic}")
+        print(
+            f"DEBUG: Listening for DOMUSA commands on "
+            f"{self.command_topic}"
+        )
 
         async for message in self.mqtt.messages:
             topic = str(message.topic)
@@ -164,6 +177,7 @@ class Router:
 
             try:
                 await self.handle_command(message.payload)
+
             except Exception as ex:
                 print(f"ERROR: Command processing failed: {ex}")
 
@@ -172,5 +186,9 @@ class Router:
                         "success": False,
                         "error": "Internal command processing error"
                     })
+
                 except Exception as publish_error:
-                    print(f"ERROR: Unable to publish command result: {publish_error}")
+                    print(
+                        "ERROR: Unable to publish command result: "
+                        f"{publish_error}"
+                    )
