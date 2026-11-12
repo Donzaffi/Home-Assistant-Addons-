@@ -578,6 +578,125 @@ SENSORS = [
         "state_class": "measurement",
         "icon": "mdi:chart-line",
     },
+]
+    
+# -------------------------------------------------
+# STEUERUNGEN – MQTT NUMBER
+# -------------------------------------------------
+NUMBER_CONTROLS = [
+    {
+        "uid": "control_dhw_target",
+        "name": "Warmwasser Solltemperatur einstellen",
+        "key": "st_acs_p04",
+        "min": 40,
+        "max": 65,
+        "step": 1,
+        "unit": "°C",
+        "icon": "mdi:water-thermometer",
+    },
+    {
+        "uid": "control_buffer_target",
+        "name": "Puffer Solltemperatur einstellen",
+        "key": "st_buffer_c_p123",
+        "min": 25,
+        "max": 50,
+        "step": 1,
+        "unit": "°C",
+        "icon": "mdi:water-boiler",
+    },
+    {
+        "uid": "control_heat_cool_hysteresis",
+        "name": "Hysterese Heizen/Kühlen einstellen",
+        "key": "hyst_c_f_p06",
+        "min": 5,
+        "max": 11,
+        "step": 1,
+        "unit": "°C",
+        "icon": "mdi:thermometer",
+    },
+    {
+        "uid": "control_acs_hysteresis",
+        "name": "Warmwasser-Hysterese einstellen",
+        "key": "hyst_acs_p07",
+        "min": 5,
+        "max": 10,
+        "step": 1,
+        "unit": "°C",
+        "icon": "mdi:water-thermometer",
+    },
+    {
+        "uid": "control_buffer_hysteresis",
+        "name": "Puffer-Hysterese einstellen",
+        "key": "hyst_buffer_p122",
+        "min": 5,
+        "max": 11,
+        "step": 1,
+        "unit": "°C",
+        "icon": "mdi:thermometer-water",
+    },
+]
+
+
+# -------------------------------------------------
+# STEUERUNGEN – MQTT SELECT
+# -------------------------------------------------
+SG_READY_OPTIONS = ["0"] + [
+    str(value) for value in range(40, 66)
+]
+
+SELECT_CONTROLS = [
+    {
+        "uid": "control_pump_c1_mode",
+        "name": "Umwälzpumpe C1 Betriebsart",
+        "key": "m_c1_p20",
+        "options": [
+            "Dauerbetrieb",
+            "Normalbetrieb",
+            "Intervallbetrieb",
+        ],
+        "value_template": (
+            "{{ {0: 'Dauerbetrieb', "
+            "1: 'Normalbetrieb', "
+            "2: 'Intervallbetrieb'}.get("
+            "value_json.get('m_c1_p20') | int(-1), '') }}"
+        ),
+        "command_template": (
+            "{{ {'parameter': 'm_c1_p20', "
+            "'value': {'Dauerbetrieb': 0, "
+            "'Normalbetrieb': 1, "
+            "'Intervallbetrieb': 2}[value]} | tojson }}"
+        ),
+        "icon": "mdi:pump",
+    },
+    {
+        "uid": "control_sg2_heating",
+        "name": "SG Ready Heizen Empfehlung",
+        "key": "st_sg2_c_p202",
+        "options": SG_READY_OPTIONS,
+        "icon": "mdi:solar-power",
+    },
+    {
+        "uid": "control_sgon_heating",
+        "name": "SG Ready Heizen Anforderung",
+        "key": "st_sgon_c_p203",
+        "options": SG_READY_OPTIONS,
+        "icon": "mdi:solar-power",
+    },
+    {
+        "uid": "control_sg2_dhw",
+        "name": "SG Ready Warmwasser Empfehlung",
+        "key": "st_sg2_acs_p206",
+        "options": SG_READY_OPTIONS,
+        "icon": "mdi:water-boiler",
+    },
+    {
+        "uid": "control_sgon_dhw",
+        "name": "SG Ready Warmwasser Anforderung",
+        "key": "st_sgon_acs_p207",
+        "options": SG_READY_OPTIONS,
+        "icon": "mdi:water-boiler",
+    },
+
 
 
 ]
@@ -588,6 +707,7 @@ REMOVED_SENSOR_UIDS = [
     "boost_mode",
     "manual_defrost",
 ]
+
 
 
 
@@ -607,10 +727,16 @@ class Discovery:
             "model": "HTEC Pro 12",
         }
 
+        state_topic = f"domusa/{cid}/status"
+        command_topic = f"domusa/{cid}/set"
+        availability_topic = f"domusa/{cid}/availability"
+
+        # Remove obsolete sensor discovery entries
         for uid in REMOVED_SENSOR_UIDS:
             topic = f"homeassistant/sensor/domusa_{cid}_{uid}/config"
             await self.mqtt.client.publish(topic, "", retain=True)
 
+        # Publish existing sensors without changing their unique IDs
         for sensor in SENSORS:
             component = sensor.get("component", "sensor")
 
@@ -618,8 +744,8 @@ class Discovery:
                 "name": sensor["name"],
                 "unique_id": f"domusa_{cid}_{sensor['uid']}",
                 "device": dev_info,
-                "state_topic": f"domusa/{cid}/status",
-                "availability_topic": f"domusa/{cid}/availability",
+                "state_topic": state_topic,
+                "availability_topic": availability_topic,
                 "value_template": sensor.get(
                     "value_template",
                     f"{{{{ value_json.{sensor['key']} }}}}"
@@ -637,7 +763,6 @@ class Discovery:
             if "device_class" in sensor:
                 payload["device_class"] = sensor["device_class"]
 
-            # Standard-State-Class für Messwerte
             if sensor.get("device_class") in (
                 "temperature",
                 "current",
@@ -648,23 +773,22 @@ class Discovery:
             ):
                 payload["state_class"] = "measurement"
 
-            # Individuelle State-Class überschreibt den Standard
             if "state_class" in sensor:
                 payload["state_class"] = sensor["state_class"]
 
             if "entity_category" in sensor:
                 payload["entity_category"] = sensor["entity_category"]
 
-            # Zusätzliche JSON-Attribute, z. B. historische Energiedaten
             if "json_attributes_template" in sensor:
-                payload["json_attributes_topic"] = (
-                    f"domusa/{cid}/status"
-                )
+                payload["json_attributes_topic"] = state_topic
                 payload["json_attributes_template"] = (
                     sensor["json_attributes_template"]
                 )
 
-            topic = f"homeassistant/{component}/domusa_{cid}_{sensor['uid']}/config"
+            topic = (
+                f"homeassistant/{component}/"
+                f"domusa_{cid}_{sensor['uid']}/config"
+            )
 
             await self.mqtt.client.publish(
                 topic,
@@ -672,3 +796,90 @@ class Discovery:
                 retain=True,
             )
 
+        # Publish adjustable number entities
+        for control in NUMBER_CONTROLS:
+            key = control["key"]
+
+            value_template = (
+                f"{{{{ value_json.{key} }}}}"
+            )
+
+            if key == "st_acs_p04":
+                value_template = (
+                    "{{ value_json.st_acs_p04 "
+                    "if value_json.st_acs_p04 is not none "
+                    "and value_json.st_acs_p04 != -255 else 'None' }}"
+                )
+
+            payload = {
+                "name": control["name"],
+                "unique_id": f"domusa_{cid}_{control['uid']}",
+                "device": dev_info,
+                "state_topic": state_topic,
+                "command_topic": command_topic,
+                "availability_topic": availability_topic,
+                "value_template": value_template,
+                "payload_reset": "None",
+                "command_template": (
+                    "{{ {'parameter': '" + key +
+                    "', 'value': value | int} | tojson }}"
+                ),
+                "min": control["min"],
+                "max": control["max"],
+                "step": control["step"],
+                "mode": "slider",
+                "unit_of_measurement": control["unit"],
+                "icon": control["icon"],
+            }
+
+            topic = (
+                f"homeassistant/number/"
+                f"domusa_{cid}_{control['uid']}/config"
+            )
+
+            await self.mqtt.client.publish(
+                topic,
+                json.dumps(payload, ensure_ascii=False),
+                retain=True,
+            )
+
+        # Publish selectable entities
+        for control in SELECT_CONTROLS:
+            key = control["key"]
+
+            value_template = control.get(
+                "value_template",
+                f"{{{{ value_json.{key} | int | string }}}}"
+            )
+
+            command_template = control.get(
+                "command_template",
+                (
+                    "{{ {'parameter': '" + key +
+                    "', 'value': value | int} | tojson }}"
+                )
+            )
+
+            payload = {
+                "name": control["name"],
+                "unique_id": f"domusa_{cid}_{control['uid']}",
+                "device": dev_info,
+                "state_topic": state_topic,
+                "command_topic": command_topic,
+                "availability_topic": availability_topic,
+                "options": control["options"],
+                "value_template": value_template,
+                "command_template": command_template,
+                "icon": control["icon"],
+            }
+
+            topic = (
+                f"homeassistant/select/"
+                f"domusa_{cid}_{control['uid']}/config"
+            )
+
+            await self.mqtt.client.publish(
+                topic,
+                json.dumps(payload, ensure_ascii=False),
+                retain=True,
+            )
