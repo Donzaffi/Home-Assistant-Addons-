@@ -7,6 +7,7 @@ import logging
 from datetime import timedelta
 from typing import Any
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
@@ -52,11 +53,16 @@ SENSOR_UID_TO_KEY = {
 class DomusaDataCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Collect existing DOMUSA Bridge entity states for the dashboard."""
 
-    def __init__(self, hass: HomeAssistant) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+    ) -> None:
         """Initialize the coordinator."""
         super().__init__(
             hass,
             _LOGGER,
+            config_entry=config_entry,
             name="DOMUSA Dashboard",
             update_interval=timedelta(seconds=10),
         )
