@@ -38,6 +38,8 @@ Users who want to test the multi-device version must switch to the corresponding
 
 ## Installation
 
+[![Open your Home Assistant instance and add this repository](https://my.home-assistant.io/badges/supervisor_addon.svg)](https://my.home-assistant.io/redirect/supervisor_addon/?repository_url=https%3A%2F%2Fgithub.com%2FDonzaffi%2FHome-Assistant-Addons-)
+
 1. Open **Settings → Apps** in Home Assistant.
 2. Open the three-dot menu in the upper-right corner.
 3. Select **Repositories**.
