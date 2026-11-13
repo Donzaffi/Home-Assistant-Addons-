@@ -3,7 +3,7 @@ import os
 
 SENSORS = [
     # -------------------------------------------------
-    # TEMPERATUREN – STATUSPARAMETER C00 BIS C09
+    # TEMPERATURES – STATUS PARAMETERS C00 TO C09
     # -------------------------------------------------
     {
         "uid": "evaporator_temperature",
@@ -80,7 +80,7 @@ SENSORS = [
     },
 
     # -------------------------------------------------
-    # TEMPERATURDIFFERENZ UND BERECHNETE WERTE
+    # TEMPERATURE DIFFERENCE AND CALCULATED VALUES
     # -------------------------------------------------
     {
         "uid": "suction_evaporation_delta",
@@ -119,7 +119,7 @@ SENSORS = [
     },
 
     # -------------------------------------------------
-    # ELEKTRISCHE WERTE
+    # ELECTRICAL VALUES
     # -------------------------------------------------
     {
         "uid": "input_voltage",
@@ -148,7 +148,7 @@ SENSORS = [
     },
 
     # -------------------------------------------------
-    # WASSERKREIS
+    # WATER CIRCUIT
     # -------------------------------------------------
     {
         "uid": "water_flow",
@@ -167,7 +167,7 @@ SENSORS = [
     },
 
     # -------------------------------------------------
-    # KÄLTEKREIS
+    # REFRIGERANT CIRCUIT
     # -------------------------------------------------
     {
         "uid": "high_pressure",
@@ -220,7 +220,7 @@ SENSORS = [
     },
 
     # -------------------------------------------------
-    # LÜFTER
+    # FANS
     # -------------------------------------------------
     {
         "uid": "fan1_rpm",
@@ -240,7 +240,7 @@ SENSORS = [
     },
 
     # -------------------------------------------------
-    # BETRIEBSZUSTAND & SOLLWERTE
+    # OPERATING STATE & TARGET VALUES
     # -------------------------------------------------
     {
         "uid": "operation_state",
@@ -281,7 +281,7 @@ SENSORS = [
 
 
     # -------------------------------------------------
-    # SG READY – BINÄRE EINGÄNGE
+    # SG READY – BINARY INPUTS
     # -------------------------------------------------
     {
         "uid": "sg_ready_c61",
@@ -305,7 +305,7 @@ SENSORS = [
     },
 
     # -------------------------------------------------
-    # SOLLTEMPERATUREN – TYP 17
+    # TARGET TEMPERATURES – TYPE 17
     # -------------------------------------------------
     {
         "uid": "heating_target",
@@ -338,7 +338,7 @@ SENSORS = [
     },
 
     # -------------------------------------------------
-    # ALARME
+    # ALARMS
     # -------------------------------------------------
     {
         "uid": "alarm",
@@ -354,7 +354,7 @@ SENSORS = [
     },
     
     # -------------------------------------------------
-    # FEHLERDIAGNOSE
+    # ERROR DIAGNOSTICS
     # -------------------------------------------------
     {
         "uid": "error_active",
@@ -386,7 +386,7 @@ SENSORS = [
 
     
     # -------------------------------------------------
-    # KONFIGURATION – TYP 19
+    # CONFIGURATION – TYPE 19
     # -------------------------------------------------
     {
         "uid": "config_acs_enabled",
@@ -472,7 +472,7 @@ SENSORS = [
 
     
     # -------------------------------------------------
-    # ZÄHLER – TYP 22
+    # COUNTERS – TYPE 22
     # -------------------------------------------------
     {
         "uid": "compressor_starts",
@@ -523,7 +523,7 @@ SENSORS = [
         "entity_category": "diagnostic",
     },
         # -------------------------------------------------
-    # TAGESENERGIE UND COP – TYP 22
+    # DAILY ENERGY AND COP – TYPE 22
     # -------------------------------------------------
     {
         "uid": "daily_production",
@@ -582,7 +582,7 @@ SENSORS = [
 ]
     
 # -------------------------------------------------
-# STEUERUNGEN – MQTT NUMBER
+# CONTROLS – MQTT NUMBER
 # -------------------------------------------------
 NUMBER_CONTROLS = [
     {
@@ -639,7 +639,7 @@ NUMBER_CONTROLS = [
 
 
 # -------------------------------------------------
-# STEUERUNGEN – MQTT SELECT
+# CONTROLS – MQTT SELECT
 # -------------------------------------------------
 SG_READY_OPTIONS = ["0"] + [
     str(value) for value in range(40, 66)
