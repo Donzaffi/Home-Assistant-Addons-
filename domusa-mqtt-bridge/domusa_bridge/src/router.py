@@ -61,8 +61,18 @@ class Router:
         if not math.isfinite(value):
             return False, "Value must be finite"
 
+        # DHW target temperature: integer from 40 to 65.
+        if parameter == "st_acs_p04":
+            if not isinstance(value, int) or not 40 <= value <= 65:
+                return False, "st_acs_p04 must be an integer from 40 to 65"
+
+        # Buffer target temperature: integer from 25 to 50.
+        elif parameter == "st_buffer_c_p123":
+            if not isinstance(value, int) or not 25 <= value <= 50:
+                return False, "st_buffer_c_p123 must be an integer from 25 to 50"
+
         # Heating and buffer hysteresis: integer from 5 to 11.
-        if parameter in ("hyst_c_f_p06", "hyst_buffer_p122"):
+        elif parameter in ("hyst_c_f_p06", "hyst_buffer_p122"):
             if not isinstance(value, int) or not 5 <= value <= 11:
                 return False, f"{parameter} must be an integer from 5 to 11"
 
