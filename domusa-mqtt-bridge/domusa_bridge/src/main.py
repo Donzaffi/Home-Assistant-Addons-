@@ -1,3 +1,4 @@
+
 import asyncio
 import json
 import sys
@@ -25,15 +26,18 @@ async def poll_once(api, state, device, lock):
     Fetch and publish the complete DOMUSA status.
 
     The lock prevents regular polling and command-triggered
-    refreshes from running concurrently.
+    refreshes from running concurrently for the same device.
     """
 
+    cid = device["id"]
+    name = device.get("name") or cid
+
     async with lock:
-        log("Starting data polling...")
+        log(f"Polling {name} ({cid})...")
 
         # Fetch runtime state and configuration.
-        estado = await api.get_estado(device["id"])
-        config = await api.get_config(device["id"])
+        estado = await api.get_estado(cid)
+        config = await api.get_config(cid)
 
         # Merge runtime state and configuration.
         full_data = dict(estado or {})
@@ -43,17 +47,17 @@ async def poll_once(api, state, device, lock):
                 if key not in full_data:
                     full_data[key] = value
 
-        # Fetch counters and energy statistics (API type 22).
-        contadores = await api.get_contadores(device["id"])
+        # Fetch counters and energy statistics.
+        contadores = await api.get_contadores(cid)
 
         if isinstance(contadores, dict) and contadores:
             full_data["contadores"] = contadores
-            log("Counter and energy data retrieved successfully")
+            log(f"{name}: counter data retrieved successfully")
         else:
-            log("Warning: No counter data received from the API")
+            log(f"Warning: no counter data received for {name}")
 
         if not full_data:
-            log("Warning: No data received from the API")
+            log(f"Warning: no data received for {name} ({cid})")
             return False
 
         # Add error information.
@@ -61,80 +65,146 @@ async def poll_once(api, state, device, lock):
         full_data.update(error_summary)
 
         if error_summary["error_active"]:
-            log("DOMUSA ERROR: " + error_summary["error_description"])
+            log(
+                f"{name}: DOMUSA ERROR: "
+                f"{error_summary['error_description']}"
+            )
         else:
-            log("No active DOMUSA errors")
+            log(f"{name}: no active DOMUSA errors")
 
         # Publish the complete status.
-        log(f"Publishing data to MQTT ({len(full_data)} top-level fields)")
+        log(
+            f"{name}: publishing "
+            f"{len(full_data)} top-level fields"
+        )
+
         await state.publish(full_data)
 
         return True
 
 
 async def poll_loop(api, state, device, cfg, lock):
+    """
+    Continuously poll one DOMUSA installation.
+    """
+
+    cid = device["id"]
+    name = device.get("name") or cid
+    interval = cfg.get("poll_interval", 60)
+
     while True:
         try:
             await poll_once(api, state, device, lock)
 
         except Exception as ex:
-            log(f"Polling error: {ex}")
+            log(f"Polling error for {name} ({cid}): {ex}")
 
-        await asyncio.sleep(cfg.get("poll_interval", 60))
+        await asyncio.sleep(interval)
 
 
 async def main():
-    log("Initializing...")
+    log("Initializing Domusa MQTT Bridge...")
 
     with open("/data/options.json", "r") as f:
         config = json.load(f)
 
-    auth = Auth(config["username"], config["password"])
+    # Initialize API and authentication.
+    auth = Auth(
+        config["username"],
+        config["password"]
+    )
+
     api = DomusaAPI(auth)
 
+    # Discover all installations from the DOMUSA cloud API.
+    devices = await api.get_calderas()
+
+    if not devices:
+        raise RuntimeError(
+            "No DOMUSA installations found in the account"
+        )
+
+    # Save the current device list.
     storage = Storage()
-    device = await storage.get_device()
+    await storage.save_devices(devices)
 
-    if not device:
-        device = await api.get_caldera()
+    log(
+        f"Found {len(devices)} DOMUSA installation(s): "
+        + ", ".join(
+            f"{d.get('name', d['id'])} [{d['id']}]"
+            for d in devices
+        )
+    )
 
-        if not device:
-            raise RuntimeError("No DOMUSA device found.")
-
-        await storage.save_device(device)
-
+    # Establish one shared MQTT connection.
     mqtt = MQTT(
         host=config.get("mqtt_host", "core-mosquitto"),
-        port=1883,
+        port=config.get("mqtt_port", 1883),
         user=config.get("mqtt_user"),
         password=config.get("mqtt_password")
     )
 
     await mqtt.connect()
 
-    discovery = Discovery(mqtt, device)
-    await discovery.publish()
+    # Create one state manager and polling lock per installation.
+    tasks = []
+    refresh_callbacks = {}
 
-    state = StateManager(mqtt, device)
+    for device in devices:
+        cid = device["id"]
+        name = device.get("name") or cid
 
-    # Shared lock for regular polling and immediate refreshes.
-    poll_lock = asyncio.Lock()
+        log(f"Initializing {name} ({cid})")
 
-    # Callback used by the router after a successful write.
-    async def refresh_status():
-        return await poll_once(api, state, device, poll_lock)
+        state = StateManager(mqtt, device)
+        discovery = Discovery(mqtt, device)
 
+        # Publish Home Assistant MQTT discovery.
+        await discovery.publish()
+
+        # Separate lock for each installation.
+        poll_lock = asyncio.Lock()
+
+        # Create a callback for immediate status refresh.
+        async def refresh_status(
+            api=api,
+            state=state,
+            device=device,
+            lock=poll_lock
+        ):
+            return await poll_once(
+                api,
+                state,
+                device,
+                lock
+            )
+
+        refresh_callbacks[str(cid)] = refresh_status
+
+        # Start polling this installation.
+        tasks.append(
+            poll_loop(
+                api,
+                state,
+                device,
+                config,
+                poll_lock
+            )
+        )
+
+    # One router handles commands for all installations.
     router = Router(
         api,
         mqtt,
-        device,
-        refresh_status=refresh_status
+        devices,
+        refresh_callbacks=refresh_callbacks
     )
 
-    await asyncio.gather(
-        poll_loop(api, state, device, config, poll_lock),
-        router.listen()
-    )
+    tasks.append(router.listen())
+
+    log("All DOMUSA installations initialized")
+
+    await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
