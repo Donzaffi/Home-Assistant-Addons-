@@ -1,3 +1,4 @@
+
 import aiohttp
 import json
 
@@ -84,18 +85,83 @@ class DomusaAPI:
         result = await self._request("PUT", url, payload)
         return result is not None
 
-    async def get_caldera(self):
+    async def get_calderas(self):
+        """
+        Return all Domusa installations available to the account.
+        """
+
         url = f"{self.base}/v1/usuario/calderas/aliases"
         data = await self._get(url)
 
-        if not isinstance(data, dict) or not data:
-            return None
+        devices = []
 
-        first_key = next(iter(data))
+        if isinstance(data, dict):
+            for alias, value in data.items():
 
-        return {
-            "id": data[first_key].get("idcaldera", first_key)
-        }
+                if isinstance(value, dict):
+                    cid = value.get("idcaldera") or alias
+
+                    name = (
+                        value.get("alias")
+                        or value.get("nombre")
+                        or value.get("name")
+                        or str(alias)
+                    )
+                else:
+                    cid = alias
+                    name = str(alias)
+
+                if cid is None:
+                    continue
+
+                devices.append({
+                    "id": str(cid),
+                    "name": str(name),
+                    "alias": str(alias)
+                })
+
+        elif isinstance(data, list):
+            for index, value in enumerate(data):
+
+                if not isinstance(value, dict):
+                    continue
+
+                cid = value.get("idcaldera") or value.get("id")
+
+                if cid is None:
+                    continue
+
+                name = (
+                    value.get("alias")
+                    or value.get("nombre")
+                    or value.get("name")
+                    or f"Domusa {index + 1}"
+                )
+
+                devices.append({
+                    "id": str(cid),
+                    "name": str(name),
+                    "alias": str(name)
+                })
+
+        # Remove duplicates while preserving API order.
+        unique_devices = []
+        seen_ids = set()
+
+        for device in devices:
+            if device["id"] not in seen_ids:
+                seen_ids.add(device["id"])
+                unique_devices.append(device)
+
+        return unique_devices
+
+    async def get_caldera(self):
+        """
+        Backward-compatible helper returning the first installation.
+        """
+
+        devices = await self.get_calderas()
+        return devices[0] if devices else None
 
     async def get_estado(self, cid):
         return await self._get(
