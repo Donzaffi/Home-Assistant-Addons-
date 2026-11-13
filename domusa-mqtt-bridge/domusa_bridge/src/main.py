@@ -115,18 +115,38 @@ async def main():
     )
 
     api = DomusaAPI(auth)
+    storage = Storage()
 
-    # Discover all installations from the DOMUSA cloud API.
+    # Discover installations from the DOMUSA cloud API.
     devices = await api.get_calderas()
 
-    if not devices:
-        raise RuntimeError(
-            "No DOMUSA installations found in the account"
+    if devices:
+        # Save the latest cloud device list.
+        await storage.save_devices(devices)
+
+        log(
+            f"Discovered {len(devices)} installation(s) "
+            "from DOMUSA cloud"
         )
 
-    # Save the current device list.
-    storage = Storage()
-    await storage.save_devices(devices)
+    else:
+        # Fall back to previously stored installations.
+        log(
+            "Warning: no installations received from DOMUSA cloud. "
+            "Trying local storage..."
+        )
+
+        devices = await storage.get_devices()
+
+        if devices:
+            log(
+                f"Using {len(devices)} stored DOMUSA installation(s)"
+            )
+        else:
+            raise RuntimeError(
+                "No DOMUSA installations found in cloud "
+                "or local storage"
+            )
 
     log(
         f"Found {len(devices)} DOMUSA installation(s): "
