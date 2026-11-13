@@ -37,5 +37,6 @@ BRIDGE_SENSOR_UIDS = frozenset(
         "s_prbaja_c14",    # Low-side refrigerant pressure
         "rpm_vent1_c16",   # Fan 1 speed
         "rpm_vent2_c17",   # Fan 2 speed
+        "heating_circuit_pump",  # Heating circuit pump state
     }
 )
