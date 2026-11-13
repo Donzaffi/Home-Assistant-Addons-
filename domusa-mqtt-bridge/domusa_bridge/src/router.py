@@ -1,3 +1,4 @@
+
 import asyncio
 import json
 import math
@@ -21,15 +22,33 @@ class Router:
         "st_sgon_acs_p207",
     }
 
-    def __init__(self, api, mqtt, device, refresh_status=None):
+    def __init__(
+        self,
+        api,
+        mqtt,
+        devices,
+        refresh_callbacks=None
+    ):
         self.api = api
         self.mqtt = mqtt
-        self.device = device
-        self.refresh_status = refresh_status
 
-        cid = device["id"]
-        self.command_topic = f"domusa/{cid}/set"
-        self.result_topic = f"domusa/{cid}/set/result"
+        self.devices = {
+            str(device["id"]): device
+            for device in devices
+            if isinstance(device, dict) and device.get("id") is not None
+        }
+
+        self.refresh_callbacks = refresh_callbacks or {}
+
+        self.command_topics = {
+            cid: f"domusa/{cid}/set"
+            for cid in self.devices
+        }
+
+        self.result_topics = {
+            cid: f"domusa/{cid}/set/result"
+            for cid in self.devices
+        }
 
     def validate(self, parameter, value):
 
@@ -69,20 +88,22 @@ class Router:
 
         return True, None
 
-    async def publish_result(self, result):
+    async def publish_result(self, cid, result):
+        topic = self.result_topics[cid]
+
         await self.mqtt.publish(
-            self.result_topic,
+            topic,
             json.dumps(result, ensure_ascii=False)
         )
 
-    async def handle_command(self, payload):
+    async def handle_command(self, cid, payload):
 
         # Decode and parse the MQTT payload.
         try:
             command = json.loads(payload.decode("utf-8"))
 
-        except (UnicodeDecodeError, json.JSONDecodeError):
-            await self.publish_result({
+        except (UnicodeDecodeError, json.JSONDecodeError, AttributeError):
+            await self.publish_result(cid, {
                 "success": False,
                 "error": "Invalid JSON payload"
             })
@@ -90,7 +111,7 @@ class Router:
 
         # Ensure the payload is a JSON object.
         if not isinstance(command, dict):
-            await self.publish_result({
+            await self.publish_result(cid, {
                 "success": False,
                 "error": "Payload must be a JSON object"
             })
@@ -100,7 +121,7 @@ class Router:
         value = command.get("value")
 
         if not isinstance(parameter, str):
-            await self.publish_result({
+            await self.publish_result(cid, {
                 "success": False,
                 "error": "Missing or invalid parameter"
             })
@@ -110,14 +131,13 @@ class Router:
         valid, error = self.validate(parameter, value)
 
         if not valid:
-            await self.publish_result({
+            await self.publish_result(cid, {
                 "success": False,
                 "parameter": parameter,
                 "error": error
             })
             return
 
-        cid = self.device["id"]
         request_data = {parameter: value}
 
         # Select the correct DOMUSA API endpoint.
@@ -131,7 +151,7 @@ class Router:
 
         # Stop if the PUT request failed.
         if not success:
-            await self.publish_result({
+            await self.publish_result(cid, {
                 "success": False,
                 "parameter": parameter,
                 "value": value,
@@ -146,7 +166,7 @@ class Router:
         current_data = await read_method(cid)
 
         if not isinstance(current_data, dict) or parameter not in current_data:
-            await self.publish_result({
+            await self.publish_result(cid, {
                 "success": False,
                 "parameter": parameter,
                 "value": value,
@@ -158,7 +178,7 @@ class Router:
 
         # Compare the requested value with the actual device value.
         if actual_value != value:
-            await self.publish_result({
+            await self.publish_result(cid, {
                 "success": False,
                 "parameter": parameter,
                 "requested_value": value,
@@ -171,16 +191,21 @@ class Router:
         status_updated = False
         status_error = None
 
-        if self.refresh_status is not None:
+        refresh_status = self.refresh_callbacks.get(cid)
+
+        if refresh_status is not None:
             try:
-                status_updated = await self.refresh_status()
+                status_updated = await refresh_status()
 
                 if not status_updated:
                     status_error = "No status data received during refresh"
 
             except Exception as ex:
                 status_error = str(ex)
-                print(f"ERROR: Immediate status refresh failed: {ex}")
+                print(
+                    f"ERROR: Immediate status refresh failed "
+                    f"for {cid}: {ex}"
+                )
 
         # Publish successful write confirmation.
         result = {
@@ -193,32 +218,49 @@ class Router:
         if status_error:
             result["status_error"] = status_error
 
-        await self.publish_result(result)
-
-        print(f"DEBUG: Parameter {parameter} updated to {actual_value}")
-
-    async def listen(self):
-        await self.mqtt.subscribe(self.command_topic)
+        await self.publish_result(cid, result)
 
         print(
-            f"DEBUG: Listening for DOMUSA commands on "
-            f"{self.command_topic}"
+            f"DEBUG: DOMUSA {cid}: "
+            f"Parameter {parameter} updated to {actual_value}"
         )
 
+    async def listen(self):
+
+        # Subscribe to the exact command topic of every installation.
+        for cid, topic in self.command_topics.items():
+            await self.mqtt.subscribe(topic)
+
+            print(
+                f"DEBUG: Listening for DOMUSA commands "
+                f"for {cid} on {topic}"
+            )
+
+        # Process commands from all installations.
         async for message in self.mqtt.messages:
             topic = str(message.topic)
 
-            if topic != self.command_topic:
+            cid = None
+
+            for device_id, command_topic in self.command_topics.items():
+                if topic == command_topic:
+                    cid = device_id
+                    break
+
+            if cid is None:
                 continue
 
             try:
-                await self.handle_command(message.payload)
+                await self.handle_command(cid, message.payload)
 
             except Exception as ex:
-                print(f"ERROR: Command processing failed: {ex}")
+                print(
+                    f"ERROR: Command processing failed "
+                    f"for {cid}: {ex}"
+                )
 
                 try:
-                    await self.publish_result({
+                    await self.publish_result(cid, {
                         "success": False,
                         "error": "Internal command processing error"
                     })
