@@ -1,4 +1,5 @@
 import json
+import os
 
 SENSORS = [
     # -------------------------------------------------
@@ -713,9 +714,32 @@ REMOVED_SENSOR_UIDS = [
 
 class Discovery:
 
-    def __init__(self, mqtt, device):
+    def __init__(self, mqtt, device, language="en"):
         self.mqtt = mqtt
         self.device = device
+        self.language = language if language in ("en", "de", "es") else "en"
+        translations_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "translations",
+            f"{self.language}.json",
+        )
+        try:
+            with open(translations_path, "r", encoding="utf-8") as translation_file:
+                self.translations = json.load(translation_file)
+        except (OSError, json.JSONDecodeError) as ex:
+            print(f"DEBUG: Could not load {self.language} translations: {ex}; using English")
+            self.language = "en"
+            fallback_path = os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), "translations", "en.json"
+            )
+            with open(fallback_path, "r", encoding="utf-8") as translation_file:
+                self.translations = json.load(translation_file)
+
+    def translated_name(self, uid, fallback):
+        return self.translations.get("entities", {}).get(uid, fallback)
+
+    def translated_state(self, group, key):
+        return self.translations[group][key][self.language]
 
     async def publish(self):
         cid = self.device["id"]
@@ -740,16 +764,38 @@ class Discovery:
         for sensor in SENSORS:
             component = sensor.get("component", "sensor")
 
+            value_template = sensor.get(
+                "value_template",
+                f"{{{{ value_json.{sensor['key']} }}}}"
+            )
+            if sensor["uid"] == "operation_state":
+                states = self.translations["states"]
+                state_map = {
+                    "0": states["0"][self.language],
+                    "1": states["1"][self.language],
+                    "2": states["2"][self.language],
+                    "3": states["3"][self.language],
+                }
+                state_map_jinja = json.dumps(state_map, ensure_ascii=False)
+                unknown = json.dumps(states["unknown"][self.language], ensure_ascii=False)
+                value_template = (
+                    "{% set map=" + state_map_jinja + " %}"
+                    "{{ map.get(value_json.estado_func_c52 | int | string, " + unknown + ") }}"
+                )
+            elif sensor["uid"] == "energy_statistics":
+                available = json.dumps(self.translated_state("availability", "available"), ensure_ascii=False)
+                unavailable = json.dumps(self.translated_state("availability", "unavailable"), ensure_ascii=False)
+                value_template = (
+                    "{{ " + available + " if value_json.contadores is mapping else " + unavailable + " }}"
+                )
+
             payload = {
-                "name": sensor["name"],
+                "name": self.translated_name(sensor["uid"], sensor["name"]),
                 "unique_id": f"domusa_{cid}_{sensor['uid']}",
                 "device": dev_info,
                 "state_topic": state_topic,
                 "availability_topic": availability_topic,
-                "value_template": sensor.get(
-                    "value_template",
-                    f"{{{{ value_json.{sensor['key']} }}}}"
-                ),
+                "value_template": value_template,
                 "icon": sensor.get("icon"),
             }
 
@@ -812,7 +858,7 @@ class Discovery:
                 )
 
             payload = {
-                "name": control["name"],
+                "name": self.translated_name(control["uid"], control["name"]),
                 "unique_id": f"domusa_{cid}_{control['uid']}",
                 "device": dev_info,
                 "state_topic": state_topic,
@@ -846,7 +892,7 @@ class Discovery:
         # Publish selectable entities
         for control in SELECT_CONTROLS:
             key = control["key"]
-
+            options = control["options"]
             value_template = control.get(
                 "value_template",
                 f"{{{{ value_json.{key} | int | string }}}}"
@@ -860,14 +906,30 @@ class Discovery:
                 )
             )
 
+            if control["uid"] == "control_pump_c1_mode":
+                pump_modes = self.translations["pump_modes"]
+                labels = [pump_modes[str(index)][self.language] for index in range(3)]
+                options = labels
+                value_map = {str(index): label for index, label in enumerate(labels)}
+                value_template = (
+                    "{% set map=" + json.dumps(value_map, ensure_ascii=False) + " %}"
+                    "{{ map.get(value_json.get('m_c1_p20') | int(-1) | string, '') }}"
+                )
+                reverse_map = {label: index for index, label in enumerate(labels)}
+                command_template = (
+                    "{{ {'parameter': 'm_c1_p20', 'value': "
+                    + json.dumps(reverse_map, ensure_ascii=False)
+                    + "[value]} | tojson }}"
+                )
+
             payload = {
-                "name": control["name"],
+                "name": self.translated_name(control["uid"], control["name"]),
                 "unique_id": f"domusa_{cid}_{control['uid']}",
                 "device": dev_info,
                 "state_topic": state_topic,
                 "command_topic": command_topic,
                 "availability_topic": availability_topic,
-                "options": control["options"],
+                "options": options,
                 "value_template": value_template,
                 "command_template": command_template,
                 "icon": control["icon"],
