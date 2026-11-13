@@ -1,45 +1,69 @@
+
 /*
  * DOMUSA Dashboard Card
  * Reads existing DOMUSA Bridge entities from Home Assistant.
  * No sensors, services, or backend polling are created by this card.
  */
 
-const CARD_VERSION = "0.1.0";
+const CARD_VERSION = "0.2.0";
 const CARD_TYPE = "domusa-dashboard";
 const UNIQUE_ID_PREFIX = "domusa_";
 
+/*
+ * IMPORTANT:
+ * These are Bridge sensor UIDs, not MQTT/JSON payload keys.
+ * Home Assistant unique IDs have this structure:
+ * domusa_<cid>_<uid>
+ */
+
 const SENSOR_DEFINITIONS = [
-  { uid: "estado_func_c52", label: "Operating mode", group: "System", kind: "mode" },
-  { uid: "demanda_hp", label: "Heat pump demand", group: "System", kind: "boolean" },
-  { uid: "demanda_zona1", label: "Heating zone demand", group: "System", kind: "boolean" },
-  { uid: "m_estadoacs", label: "DHW active", group: "System", kind: "boolean" },
+  // System
+  { uid: "operation_state", label: "Operating mode", group: "System", kind: "mode" },
+  { uid: "heat_demand", label: "Heat pump demand", group: "System", kind: "boolean" },
+  { uid: "zone1_demand", label: "Heating zone demand", group: "System", kind: "boolean" },
+  { uid: "hotwater_active", label: "DHW active", group: "System", kind: "boolean" },
   { uid: "heating_circuit_pump", label: "Heating circuit pump", group: "System", kind: "boolean" },
+  { uid: "sg_ready_c61", label: "SG Ready input 1", group: "System", kind: "boolean" },
+  { uid: "sg_ready_c60", label: "SG Ready input 2", group: "System", kind: "boolean" },
 
-  { uid: "s_ext_c02", label: "Outdoor temperature", group: "Temperatures", unit: "°C" },
-  { uid: "s_ida_hp_c08", label: "Heat pump flow", group: "Temperatures", unit: "°C" },
-  { uid: "s_ret_hp_c07", label: "Heat pump return", group: "Temperatures", unit: "°C" },
-  { uid: "s_buffer_c57", label: "Buffer temperature", group: "Temperatures", unit: "°C" },
-  { uid: "s_acs_c09", label: "DHW temperature", group: "Temperatures", unit: "°C" },
+  // Temperatures
+  { uid: "outside_temperature", label: "Outdoor temperature", group: "Temperatures", unit: "°C" },
+  { uid: "flow_temperature", label: "Heat pump flow", group: "Temperatures", unit: "°C" },
+  { uid: "return_temperature", label: "Heat pump return", group: "Temperatures", unit: "°C" },
+  { uid: "buffer_temperature", label: "Buffer temperature", group: "Temperatures", unit: "°C" },
+  { uid: "dhw_temperature", label: "DHW temperature", group: "Temperatures", unit: "°C" },
+  { uid: "evaporator_temperature", label: "Evaporator temperature", group: "Temperatures", unit: "°C" },
+  { uid: "discharge_temperature", label: "Discharge temperature", group: "Temperatures", unit: "°C" },
+  { uid: "suction_temperature", label: "Suction temperature", group: "Temperatures", unit: "°C" },
+  { uid: "heat_exchanger_temperature", label: "Heat exchanger temperature", group: "Temperatures", unit: "°C" },
+  { uid: "suction_evaporation_delta", label: "Suction / evaporation delta", group: "Temperatures", unit: "°C" },
+  { uid: "evaporation_calculated", label: "Calculated evaporation temperature", group: "Temperatures", unit: "°C" },
+  { uid: "condensation_calculated", label: "Calculated condensation temperature", group: "Temperatures", unit: "°C" },
+  { uid: "ipm_temperature", label: "IPM module temperature", group: "Temperatures", unit: "°C" },
 
-  { uid: "st_buffer_c_p123", label: "Buffer target", group: "Setpoints", unit: "°C" },
-  { uid: "st_c_p02", label: "Heating target", group: "Setpoints", unit: "°C" },
-  { uid: "st_f_p03", label: "Cooling target", group: "Setpoints", unit: "°C" },
-  { uid: "st_acs_p04", label: "DHW target", group: "Setpoints", unit: "°C" },
+  // Setpoints
+  { uid: "buffer_target", label: "Buffer target", group: "Setpoints", unit: "°C" },
+  { uid: "heating_target", label: "Heating target", group: "Setpoints", unit: "°C" },
+  { uid: "cooling_target", label: "Cooling target", group: "Setpoints", unit: "°C" },
+  { uid: "dhw_target", label: "DHW target", group: "Setpoints", unit: "°C", kind: "target" },
 
-  { uid: "freq_c15", label: "Compressor frequency", group: "Refrigerant circuit", unit: "Hz" },
-  { uid: "st_freq_c20", label: "Compressor frequency target", group: "Refrigerant circuit", unit: "Hz" },
-  { uid: "curr_comp_c21", label: "Compressor current", group: "Refrigerant circuit", unit: "A" },
-  { uid: "s_evap_c00", label: "Evaporator temperature", group: "Refrigerant circuit", unit: "°C" },
-  { uid: "s_discharge_c01", label: "Discharge temperature", group: "Refrigerant circuit", unit: "°C" },
-  { uid: "s_suction_c03", label: "Suction temperature", group: "Refrigerant circuit", unit: "°C" },
-  { uid: "s_condens_c06", label: "Condenser temperature", group: "Refrigerant circuit", unit: "°C" },
-  { uid: "s_pralta_c13", label: "High-side pressure", group: "Refrigerant circuit", unit: "bar", scale: 0.1 },
-  { uid: "s_prbaja_c14", label: "Low-side pressure", group: "Refrigerant circuit", unit: "bar", scale: 0.1 },
+  // Refrigerant circuit
+  { uid: "compressor_frequency", label: "Compressor frequency", group: "Refrigerant circuit", unit: "Hz" },
+  { uid: "compressor_frequency_target", label: "Compressor frequency target", group: "Refrigerant circuit", unit: "Hz" },
+  { uid: "compressor_current", label: "Compressor current", group: "Refrigerant circuit", unit: "A" },
+  { uid: "high_pressure", label: "High-side pressure", group: "Refrigerant circuit", unit: "bar" },
+  { uid: "low_pressure", label: "Low-side pressure", group: "Refrigerant circuit", unit: "bar" },
+  { uid: "eev_position", label: "EEV position", group: "Refrigerant circuit", unit: "°" },
 
-  { uid: "s_q_c10", label: "Water flow", group: "Hydraulics", unit: "L/min" },
-  { uid: "pwm_c1_c51", label: "Pump C1 speed", group: "Hydraulics", unit: "%" },
-  { uid: "rpm_vent1_c16", label: "Fan 1 speed", group: "Hydraulics", unit: "rpm" },
-  { uid: "rpm_vent2_c17", label: "Fan 2 speed", group: "Hydraulics", unit: "rpm" },
+  // Hydraulics
+  { uid: "water_flow", label: "Water flow", group: "Hydraulics", unit: "L/min" },
+  { uid: "pump_c1_speed", label: "Pump C1 speed", group: "Hydraulics", unit: "%" },
+  { uid: "fan1_rpm", label: "Fan 1 speed", group: "Hydraulics", unit: "rpm" },
+  { uid: "fan2_rpm", label: "Fan 2 speed", group: "Hydraulics", unit: "rpm" },
+
+  // Electrical
+  { uid: "input_voltage", label: "Input voltage", group: "Electrical", unit: "V" },
+  { uid: "ipm_voltage", label: "IPM voltage", group: "Electrical", unit: "V" },
 ];
 
 const MODE_LABELS = {
@@ -47,6 +71,10 @@ const MODE_LABELS = {
   "1": "Domestic hot water",
   "2": "Heating",
   "3": "Cooling",
+  "Warten": "Standby",
+  "Warmwasser": "Domestic hot water",
+  "Heizen": "Heating",
+  "Kühlen": "Cooling",
 };
 
 const GROUP_ORDER = [
@@ -55,12 +83,15 @@ const GROUP_ORDER = [
   "Setpoints",
   "Refrigerant circuit",
   "Hydraulics",
+  "Electrical",
 ];
 
 class DomusaDashboardCard extends HTMLElement {
   constructor() {
     super();
+
     this.attachShadow({ mode: "open" });
+
     this._hass = undefined;
     this._config = {};
     this._registryConnection = undefined;
@@ -78,6 +109,7 @@ class DomusaDashboardCard extends HTMLElement {
     if (!config || typeof config !== "object") {
       throw new Error("Invalid DOMUSA Dashboard configuration.");
     }
+
     this._config = config;
     this._render();
   }
@@ -90,6 +122,7 @@ class DomusaDashboardCard extends HTMLElement {
       this._registryPromise = undefined;
       this._entitiesByDevice = {};
       this._error = "";
+
       this._loadEntityRegistry();
     } else {
       this._render();
@@ -97,11 +130,13 @@ class DomusaDashboardCard extends HTMLElement {
   }
 
   getCardSize() {
-    return 6;
+    return 8;
   }
 
   async _loadEntityRegistry() {
-    if (!this._hass || !this._hass.callWS || this._loading) return;
+    if (!this._hass || !this._hass.callWS || this._loading) {
+      return;
+    }
 
     this._loading = true;
     this._error = "";
@@ -113,12 +148,14 @@ class DomusaDashboardCard extends HTMLElement {
       });
 
       const entries = await this._registryPromise;
+
       this._entitiesByDevice = this._mapBridgeEntities(entries);
       this._error = "";
     } catch (error) {
       this._error = error && error.message
         ? error.message
         : "The Home Assistant entity registry could not be read.";
+
       this._entitiesByDevice = {};
     } finally {
       this._loading = false;
@@ -126,12 +163,29 @@ class DomusaDashboardCard extends HTMLElement {
     }
   }
 
+  /*
+   * Maps:
+   * domusa_<cid>_<uid>
+   *
+   * Example:
+   * domusa_12345_evaporator_temperature
+   *
+   * The cid is used to keep different heat pumps separate.
+   */
   _mapBridgeEntities(entries) {
     const mapped = {};
-    if (!Array.isArray(entries)) return mapped;
+
+    if (!Array.isArray(entries)) {
+      return mapped;
+    }
 
     for (const entry of entries) {
-      if (!entry || !entry.unique_id || !entry.entity_id || entry.disabled_by) {
+      if (
+        !entry ||
+        !entry.unique_id ||
+        !entry.entity_id ||
+        entry.disabled_by
+      ) {
         continue;
       }
 
@@ -142,23 +196,21 @@ class DomusaDashboardCard extends HTMLElement {
       }
 
       const definition = SENSOR_DEFINITIONS.find((item) =>
-        uniqueId === item.uid || uniqueId.endsWith(`_${item.uid}`)
+        uniqueId.endsWith(`_${item.uid}`)
       );
 
-      if (!definition) continue;
+      if (!definition) {
+        continue;
+      }
 
-      let deviceId = "default";
+      const suffix = `_${definition.uid}`;
+      const deviceId = uniqueId.slice(
+        UNIQUE_ID_PREFIX.length,
+        -suffix.length
+      );
 
-      if (uniqueId !== definition.uid) {
-        const suffix = `_${definition.uid}`;
-
-        const withoutSuffix = uniqueId.endsWith(suffix)
-          ? uniqueId.slice(0, -suffix.length)
-          : uniqueId;
-
-        deviceId = withoutSuffix.startsWith(UNIQUE_ID_PREFIX)
-          ? withoutSuffix.slice(UNIQUE_ID_PREFIX.length) || "default"
-          : withoutSuffix || "default";
+      if (!deviceId) {
+        continue;
       }
 
       if (!mapped[deviceId]) {
@@ -182,7 +234,9 @@ class DomusaDashboardCard extends HTMLElement {
   }
 
   _formatValue(stateObj, definition) {
-    if (!stateObj) return "Not found";
+    if (!stateObj) {
+      return "Not found";
+    }
 
     const raw = stateObj.state;
 
@@ -196,12 +250,18 @@ class DomusaDashboardCard extends HTMLElement {
     }
 
     if (definition.kind === "mode") {
-      return MODE_LABELS[String(raw)] || `Code ${raw}`;
+      return MODE_LABELS[String(raw)] || String(raw);
     }
 
     if (definition.kind === "boolean") {
-      if (raw === "on" || raw === "true" || raw === "1") return "On";
-      if (raw === "off" || raw === "false" || raw === "0") return "Off";
+      if (["on", "true", "1"].includes(String(raw).toLowerCase())) {
+        return "On";
+      }
+
+      if (["off", "false", "0"].includes(String(raw).toLowerCase())) {
+        return "Off";
+      }
+
       return String(raw);
     }
 
@@ -211,11 +271,16 @@ class DomusaDashboardCard extends HTMLElement {
       return String(raw);
     }
 
-    const scaled = numeric * (definition.scale ?? 1);
+    // The DHW target uses -255 to indicate that no target is set.
+    if (definition.kind === "target" && numeric === -255) {
+      return "Not set";
+    }
 
+    // Do not apply pressure scaling here.
+    // The Bridge value_template has already processed the value.
     const value = new Intl.NumberFormat(undefined, {
       maximumFractionDigits: 1,
-    }).format(scaled);
+    }).format(numeric);
 
     const unit =
       definition.unit ||
@@ -235,20 +300,28 @@ class DomusaDashboardCard extends HTMLElement {
     }
 
     if (definition.kind === "boolean") {
-      return ["on", "true", "1"].includes(String(stateObj.state))
+      return ["on", "true", "1"].includes(
+        String(stateObj.state).toLowerCase()
+      )
         ? "active"
         : "";
     }
 
     if (definition.kind === "mode") {
-      return String(stateObj.state) === "0" ? "muted" : "active";
+      const state = String(stateObj.state);
+
+      return ["0", "Warten", "Standby"].includes(state)
+        ? "muted"
+        : "active";
     }
 
     return "";
   }
 
   _render() {
-    if (!this.shadowRoot) return;
+    if (!this.shadowRoot) {
+      return;
+    }
 
     const devices = Object.keys(this._entitiesByDevice);
 
@@ -325,7 +398,10 @@ class DomusaDashboardCard extends HTMLElement {
 
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(min(100%, 145px), 1fr)
+        );
         gap: 9px;
       }
 
@@ -334,7 +410,10 @@ class DomusaDashboardCard extends HTMLElement {
         padding: 12px 13px;
         border: 1px solid var(--divider-color);
         border-radius: 13px;
-        background: var(--secondary-background-color, rgba(127,127,127,.06));
+        background: var(
+          --secondary-background-color,
+          rgba(127,127,127,.06)
+        );
       }
 
       .label {
@@ -409,9 +488,13 @@ class DomusaDashboardCard extends HTMLElement {
     } else if (this._error) {
       body = `
         <div class="message">
-          <div class="error">Could not discover DOMUSA entities.</div>
+          <div class="error">
+            Could not discover DOMUSA entities.
+          </div>
           <div>${this._escapeHtml(this._error)}</div>
-          <button class="retry" type="button">Retry discovery</button>
+          <button class="retry" type="button">
+            Retry discovery
+          </button>
         </div>
       `;
     } else if (devices.length === 0) {
@@ -450,7 +533,9 @@ class DomusaDashboardCard extends HTMLElement {
     const retry = this.shadowRoot.querySelector(".retry");
 
     if (retry) {
-      retry.addEventListener("click", () => this._loadEntityRegistry());
+      retry.addEventListener("click", () => {
+        this._loadEntityRegistry();
+      });
     }
   }
 
@@ -464,7 +549,9 @@ class DomusaDashboardCard extends HTMLElement {
         (item) => this._entitiesByDevice[deviceId]?.[item.uid]
       );
 
-      if (!availableDefinitions.length) return "";
+      if (!availableDefinitions.length) {
+        return "";
+      }
 
       const metrics = availableDefinitions.map((definition) => {
         const stateObj = this._getState(deviceId, definition);
@@ -486,15 +573,18 @@ class DomusaDashboardCard extends HTMLElement {
 
       return `
         <section class="group">
-          <h3 class="group-title">${this._escapeHtml(groupName)}</h3>
-          <div class="grid">${metrics}</div>
+          <h3 class="group-title">
+            ${this._escapeHtml(groupName)}
+          </h3>
+
+          <div class="grid">
+            ${metrics}
+          </div>
         </section>
       `;
     }).join("");
 
-    const deviceTitle = deviceId === "default"
-      ? "DOMUSA heat pump"
-      : `DOMUSA · ${deviceId}`;
+    const deviceTitle = `DOMUSA · ${deviceId}`;
 
     return `
       <section class="device">
