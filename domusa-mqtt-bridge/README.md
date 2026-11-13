@@ -1,6 +1,6 @@
 # Domusa MQTT Bridge
 
-[![GitHub Issues](https://img.shields.io/github/issues/Donzaffi/domusa-mqtt-bridge)](https://github.com/Donzaffi/domusa-mqtt-bridge/issues)
+[![GitHub Issues](https://img.shields.io/github/issues/Donzaffi/Home-Assistant-Addons-)](https://github.com/Donzaffi/Home-Assistant-Addons-/issues)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 The **Domusa MQTT Bridge** is a Home Assistant add-on that connects your Domusa heating system to your local MQTT broker.
@@ -43,7 +43,7 @@ Users who want to test the multi-device version must switch to the corresponding
 3. Select **Repositories**.
 4. Add the following repository URL:
 
-   `https://github.com/Donzaffi/domusa-mqtt-bridge`
+   `https://github.com/Donzaffi/Home-Assistant-Addons-`
 
 5. Click **Add** and close the dialog.
 6. Find **Domusa MQTT Bridge** in the add-on store.
@@ -151,7 +151,7 @@ If the connection to the Domusa cloud API fails, check your internet connection 
 
 If you encounter a problem or want to report a bug, please open an issue on GitHub:
 
-[Domusa MQTT Bridge – GitHub Issues](https://github.com/Donzaffi/domusa-mqtt-bridge/issues)
+[Domusa MQTT Bridge – GitHub Issues](https://github.com/Donzaffi/Home-Assistant-Addons-/issues)
 
 When reporting an issue, include relevant add-on logs and a description of the problem. Remove passwords, access tokens and personal device identifiers before sharing logs.
 
