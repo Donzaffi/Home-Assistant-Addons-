@@ -1,0 +1,126 @@
+{
+  "entities": {
+    "evaporator_temperature": "Temperatura de evaporación",
+    "discharge_temperature": "Temperatura de descarga del compresor",
+    "outside_temperature": "Temperatura exterior",
+    "suction_temperature": "Temperatura del gas de aspiración",
+    "heat_exchanger_temperature": "Temperatura del intercambiador de calor",
+    "return_temperature": "Temperatura de retorno del agua",
+    "flow_temperature": "Temperatura de impulsión del agua",
+    "dhw_temperature": "Temperatura del acumulador de A.C.S.",
+    "buffer_temperature": "Temperatura del depósito de inercia (buffer)",
+    "suction_evaporation_delta": "Diferencia de temperatura aspiración / evaporación",
+    "evaporation_calculated": "Temperatura de evaporación calculada",
+    "condensation_calculated": "Temperatura de condensación calculada",
+    "ipm_temperature": "Temperatura del módulo IPM",
+    "input_voltage": "Tensión de entrada",
+    "ipm_voltage": "Tensión IPM",
+    "compressor_current": "Corriente del compresor",
+    "water_flow": "Caudal de agua",
+    "pump_c1_speed": "Velocidad de la bomba de circulación C1",
+    "high_pressure": "Alta presión del circuito frigorífico",
+    "low_pressure": "Baja presión del circuito frigorífico",
+    "compressor_frequency": "Frecuencia actual del compresor",
+    "compressor_frequency_target": "Frecuencia objetivo del compresor",
+    "eev_position": "Posición de la válvula de expansión electrónica",
+    "fan1_rpm": "Velocidad del ventilador 1",
+    "fan2_rpm": "Velocidad del ventilador 2",
+    "operation_state": "Estado de funcionamiento de la bomba de calor",
+    "zone1_demand": "Demanda de calefacción de la zona 1",
+    "hotwater_active": "Producción de A.C.S. activa",
+    "heat_demand": "Demanda de la bomba de calor",
+    "buffer_target": "Temperatura objetivo del depósito de inercia",
+    "sg_ready_c61": "Entrada SG Ready C61",
+    "sg_ready_c60": "Entrada SG Ready C60",
+    "heating_target": "Temperatura objetivo de calefacción",
+    "cooling_target": "Temperatura objetivo de refrigeración",
+    "dhw_target": "Temperatura objetivo de A.C.S.",
+    "alarm": "Alarma",
+    "sub_alarm": "Subalarma",
+    "error_active": "Error DOMUSA activo",
+    "error_codes": "Códigos de error DOMUSA",
+    "error_description": "Descripción del error DOMUSA",
+    "config_acs_enabled": "A.C.S. habilitada",
+    "config_sgready_enabled": "Función SG Ready activada",
+    "config_night_mode": "Modo nocturno",
+    "config_buffer_mode": "Modo depósito de inercia",
+    "config_heat_cool_hysteresis": "Histéresis calefacción/refrigeración",
+    "config_acs_hysteresis": "Histéresis de A.C.S.",
+    "config_buffer_hysteresis": "Histéresis del depósito de inercia",
+    "heating_circuit_pump": "Bomba del circuito de calefacción",
+    "compressor_starts": "Arranques del compresor",
+    "compressor_runtime": "Tiempo de funcionamiento del compresor",
+    "defrost_count": "Ciclos de desescarche",
+    "energy_statistics": "Estadísticas energéticas",
+    "daily_production": "Producción diaria de energía",
+    "daily_renewable": "Energía renovable diaria",
+    "daily_consumption": "Consumo diario de energía",
+    "daily_cop": "COP diario",
+    "control_dhw_target": "Ajustar temperatura objetivo de A.C.S.",
+    "control_buffer_target": "Ajustar temperatura objetivo del depósito de inercia",
+    "control_heat_cool_hysteresis": "Ajustar histéresis calefacción/refrigeración",
+    "control_acs_hysteresis": "Ajustar histéresis de A.C.S.",
+    "control_buffer_hysteresis": "Ajustar histéresis del depósito de inercia",
+    "control_pump_c1_mode": "Modo de funcionamiento de la bomba C1",
+    "control_sg2_heating": "Recomendación SG Ready para calefacción",
+    "control_sgon_heating": "Solicitud SG Ready para calefacción",
+    "control_sg2_dhw": "Recomendación SG Ready para A.C.S.",
+    "control_sgon_dhw": "Solicitud SG Ready para A.C.S."
+  },
+  "states": {
+    "0": {
+      "en": "Waiting",
+      "de": "Warten",
+      "es": "En espera"
+    },
+    "1": {
+      "en": "Domestic hot water",
+      "de": "Warmwasser",
+      "es": "Agua caliente sanitaria"
+    },
+    "2": {
+      "en": "Heating",
+      "de": "Heizen",
+      "es": "Calefacción"
+    },
+    "3": {
+      "en": "Cooling",
+      "de": "Kühlen",
+      "es": "Refrigeración"
+    },
+    "unknown": {
+      "en": "Unknown",
+      "de": "Unbekannt",
+      "es": "Desconocido"
+    }
+  },
+  "pump_modes": {
+    "0": {
+      "en": "Continuous operation",
+      "de": "Dauerbetrieb",
+      "es": "Funcionamiento continuo"
+    },
+    "1": {
+      "en": "Normal operation",
+      "de": "Normalbetrieb",
+      "es": "Funcionamiento normal"
+    },
+    "2": {
+      "en": "Interval operation",
+      "de": "Intervallbetrieb",
+      "es": "Funcionamiento por intervalos"
+    }
+  },
+  "availability": {
+    "available": {
+      "en": "available",
+      "de": "verfügbar",
+      "es": "disponibles"
+    },
+    "unavailable": {
+      "en": "unavailable",
+      "de": "nicht verfügbar",
+      "es": "no disponibles"
+    }
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "entities": {
+    "evaporator_temperature": "Verdampfertemperatur",
+    "discharge_temperature": "Verdichter-Austrittstemperatur",
+    "outside_temperature": "Außentemperatur",
+    "suction_temperature": "Sauggastemperatur",
+    "heat_exchanger_temperature": "Wärmetauschertemperatur",
+    "return_temperature": "Wasserrücklauf",
+    "flow_temperature": "Wasservorlauf",
+    "dhw_temperature": "Warmwassertemperatur",
+    "buffer_temperature": "Puffertemperatur",
+    "suction_evaporation_delta": "Delta T Sauggas / Verdampfung",
+    "evaporation_calculated": "Verdampfungstemperatur",
+    "condensation_calculated": "Kondensationstemperatur berechnet",
+    "ipm_temperature": "IPM-Modultemperatur",
+    "input_voltage": "Eingangsspannung",
+    "ipm_voltage": "IPM-Spannung",
+    "compressor_current": "Verdichterstrom",
+    "water_flow": "Wasserdurchfluss",
+    "pump_c1_speed": "Umwälzpumpe C1 Drehzahl",
+    "high_pressure": "Kältekreis Hochdruck",
+    "low_pressure": "Kältekreis Niederdruck",
+    "compressor_frequency": "Verdichterfrequenz Ist",
+    "compressor_frequency_target": "Verdichterfrequenz Soll",
+    "eev_position": "Elektronisches Expansionsventil",
+    "fan1_rpm": "Lüfter 1 Drehzahl",
+    "fan2_rpm": "Lüfter 2 Drehzahl",
+    "operation_state": "Betriebszustand Wärmepumpe",
+    "zone1_demand": "Zone 1 Wärmeanforderung",
+    "hotwater_active": "Warmwasserbetrieb aktiv",
+    "heat_demand": "Wärmepumpenanforderung",
+    "buffer_target": "Puffer Soll",
+    "sg_ready_c61": "SG Ready Eingang C61",
+    "sg_ready_c60": "SG Ready Eingang C60",
+    "heating_target": "Heizung Solltemperatur",
+    "cooling_target": "Kühlung Solltemperatur",
+    "dhw_target": "Warmwasser Solltemperatur",
+    "alarm": "Alarm",
+    "sub_alarm": "Unteralarm",
+    "error_active": "DOMUSA Fehler aktiv",
+    "error_codes": "DOMUSA Fehlercodes",
+    "error_description": "DOMUSA Fehlerbeschreibung",
+    "config_acs_enabled": "Warmwasserfreigabe",
+    "config_sgready_enabled": "SG-Ready-Funktion aktiviert",
+    "config_night_mode": "Nachtmodus",
+    "config_buffer_mode": "Puffermodus",
+    "config_heat_cool_hysteresis": "Hysterese Heizen/Kühlen",
+    "config_acs_hysteresis": "Warmwasser-Hysterese",
+    "config_buffer_hysteresis": "Puffer-Hysterese",
+    "heating_circuit_pump": "Heizkreispumpe",
+    "compressor_starts": "Verdichterstarts",
+    "compressor_runtime": "Verdichterlaufzeit",
+    "defrost_count": "Abtauvorgänge",
+    "energy_statistics": "Energiedaten",
+    "daily_production": "Tagesproduktion",
+    "daily_renewable": "Erneuerbare Tagesenergie",
+    "daily_consumption": "Tagesverbrauch",
+    "daily_cop": "Tages-COP",
+    "control_dhw_target": "Warmwasser Solltemperatur einstellen",
+    "control_buffer_target": "Puffer Solltemperatur einstellen",
+    "control_heat_cool_hysteresis": "Hysterese Heizen/Kühlen einstellen",
+    "control_acs_hysteresis": "Warmwasser-Hysterese einstellen",
+    "control_buffer_hysteresis": "Puffer-Hysterese einstellen",
+    "control_pump_c1_mode": "Umwälzpumpe C1 Betriebsart",
+    "control_sg2_heating": "SG Ready Heizen Empfehlung",
+    "control_sgon_heating": "SG Ready Heizen Anforderung",
+    "control_sg2_dhw": "SG Ready Warmwasser Empfehlung",
+    "control_sgon_dhw": "SG Ready Warmwasser Anforderung"
+  },
+  "states": {
+    "0": {
+      "en": "Waiting",
+      "de": "Warten",
+      "es": "En espera"
+    },
+    "1": {
+      "en": "Domestic hot water",
+      "de": "Warmwasser",
+      "es": "Agua caliente sanitaria"
+    },
+    "2": {
+      "en": "Heating",
+      "de": "Heizen",
+      "es": "Calefacción"
+    },
+    "3": {
+      "en": "Cooling",
+      "de": "Kühlen",
+      "es": "Refrigeración"
+    },
+    "unknown": {
+      "en": "Unknown",
+      "de": "Unbekannt",
+      "es": "Desconocido"
+    }
+  },
+  "pump_modes": {
+    "0": {
+      "en": "Continuous operation",
+      "de": "Dauerbetrieb",
+      "es": "Funcionamiento continuo"
+    },
+    "1": {
+      "en": "Normal operation",
+      "de": "Normalbetrieb",
+      "es": "Funcionamiento normal"
+    },
+    "2": {
+      "en": "Interval operation",
+      "de": "Intervallbetrieb",
+      "es": "Funcionamiento por intervalos"
+    }
+  },
+  "availability": {
+    "available": {
+      "en": "available",
+      "de": "verfügbar",
+      "es": "disponibles"
+    },
+    "unavailable": {
+      "en": "unavailable",
+      "de": "nicht verfügbar",
+      "es": "no disponibles"
+    }
+  }
+}

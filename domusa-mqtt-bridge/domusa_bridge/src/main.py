@@ -1,3 +1,4 @@
+
 import asyncio
 import json
 import sys
@@ -18,6 +19,17 @@ from storage import Storage
 def log(msg):
     print(f"DEBUG: {msg}")
     sys.stdout.flush()
+
+
+def get_language(config):
+    """Return a supported language or English as fallback."""
+    language = str(config.get("language", "en")).lower()
+
+    if language not in ("en", "de", "es"):
+        log(f"Unsupported language '{language}', falling back to English")
+        return "en"
+
+    return language
 
 
 async def poll_once(api, state, device, lock):
@@ -89,6 +101,9 @@ async def main():
     with open("/data/options.json", "r") as f:
         config = json.load(f)
 
+    language = get_language(config)
+    log(f"Using language: {language}")
+
     auth = Auth(config["username"], config["password"])
     api = DomusaAPI(auth)
 
@@ -112,7 +127,7 @@ async def main():
 
     await mqtt.connect()
 
-    discovery = Discovery(mqtt, device)
+    discovery = Discovery(mqtt, device, language)
     await discovery.publish()
 
     state = StateManager(mqtt, device)
